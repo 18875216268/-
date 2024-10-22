@@ -109,7 +109,7 @@ input[type="text"] {
 
 .delete-btn, .edit-btn, .save-btn {
     margin-left: 10px; /* 按钮左侧间距 */
-    margin-right: 10px; /* 按钮左侧间距 */
+    margin-right: 10px; /* 按钮右侧间距 */
     padding: 5px 10px; /* 内边距 */
     background-color: #dc3545; /* 删除按钮背景色 */
     color: white; /* 字体颜色 */
@@ -127,7 +127,8 @@ input[type="text"] {
 .delete-checkbox {
     width: 15px;
     height: 15px;
-    margin-right: 10px;
+    margin-right: 5px;
+    margin-left: 10px; /* 按钮左侧间距 */
 }
 
 /* 输入框样式调整 */
