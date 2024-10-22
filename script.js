@@ -139,10 +139,7 @@ deleteBtn.addEventListener('click', () => {
                         console.error('删除网站时出错：', error);
                     });
             });
-        } else {
-            alert('没有选择任何要删除的软件库。'); // 没有选择时提示
-        }
-
+        } 
         deleteCheckboxes.forEach(checkbox => {
             checkbox.checked = false;
             checkbox.style.display = 'none';
