@@ -1,6 +1,6 @@
 // Firebase配置
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDk5p6EJAe02LEeqhQm1Z1dZxlIqGrRcUo",
@@ -18,36 +18,25 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 // 获取DOM元素
-const openModalBtn = document.getElementById('openModalBtn');
-const modal = document.getElementById('modal');
-const closeModalBtn = document.querySelector('.close');
-const inputData = document.getElementById('inputData');
-const submitBtn = document.getElementById('submitBtn');
+const addBtn = document.getElementById('addBtn');
+const siteNameInput = document.getElementById('siteName');
+const siteURLInput = document.getElementById('siteURL');
 const siteList = document.getElementById('siteList');
 
-// 打开弹窗
-openModalBtn.addEventListener('click', () => {
-    modal.style.display = 'block';
-});
+// 添加网站到Firebase数据库
+addBtn.addEventListener('click', () => {
+    const siteName = siteNameInput.value.trim();
+    const siteURL = siteURLInput.value.trim();
 
-// 关闭弹窗
-closeModalBtn.addEventListener('click', () => {
-    modal.style.display = 'none';
-});
+    if (siteName && siteURL) {
+        const newSiteRef = ref(database, 'sites/' + Date.now());
+        set(newSiteRef, { name: siteName, url: siteURL });
 
-// 提交数据
-submitBtn.addEventListener('click', () => {
-    const lines = inputData.value.split('\n');
-    lines.forEach(line => {
-        const [name, url] = line.split('|').map(item => item.trim());
-        if (name && url) {
-            const newSiteRef = ref(database, 'sites/' + Date.now());
-            set(newSiteRef, { name, url });
-        }
-    });
-    alert('软件库已添加！');
-    inputData.value = '';
-    modal.style.display = 'none'; // 关闭弹窗
+        siteNameInput.value = '';
+        siteURLInput.value = '';
+    } else {
+        alert('请填写完整的网站名称和链接。');
+    }
 });
 
 // 从Firebase获取网站列表
@@ -56,14 +45,26 @@ onValue(ref(database, 'sites'), (snapshot) => {
     snapshot.forEach((childSnapshot) => {
         const site = childSnapshot.val();
         const li = document.createElement('li');
-        li.innerHTML = `<a href="${site.url}" target="_blank">${site.name}</a>`;
+        li.innerHTML = <a href="${site.url}" target="_blank">${site.name}</a>
+                       <button class="delete-btn" data-id="${childSnapshot.key}">删除</button>;
         siteList.appendChild(li);
     });
+    attachDeleteEvent();
 });
 
-// 点击外部关闭弹窗
-window.onclick = (event) => {
-    if (event.target === modal) {
-        modal.style.display = 'none';
-    }
-};
+// 绑定删除按钮事件
+function attachDeleteEvent() {
+    const deleteBtns = document.querySelectorAll('.delete-btn');
+    deleteBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const siteId = btn.getAttribute('data-id');
+            remove(ref(database, 'sites/' + siteId))
+                .then(() => {
+                    console.log('网站已删除');
+                })
+                .catch((error) => {
+                    console.error('删除网站时出错：', error);
+                });
+        });
+    });
+}
