@@ -37,7 +37,7 @@ closeModalBtn.addEventListener('click', () => {
 });
 
 // 提交数据
-submitBtn.addEventListener('click', () => {
+tijiao.addEventListener('click', () => {
     const lines = inputData.value.split('\n'); // 按行分割输入内容
     lines.forEach(line => {
         const [name, url] = line.split('|').map(item => item.trim()); // 分割名称和链接
