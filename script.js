@@ -22,7 +22,7 @@ const openModalBtn = document.getElementById('openModalBtn');
 const modal = document.getElementById('modal');
 const closeModalBtn = document.querySelector('.close');
 const inputData = document.getElementById('inputData');
-const submitBtn = document.getElementById('submitBtn');
+const tijiao = document.getElementById('tijiao');
 const siteList = document.getElementById('siteList');
 const deleteBtn = document.getElementById('deleteBtn');
 
