@@ -19,12 +19,12 @@ const database = getDatabase(app);
 
 // 获取DOM元素
 const openModalBtn = document.getElementById('openModalBtn');
-const modal = document.getElementById('modal');
-const closeModalBtn = document.querySelector('.close');
-const inputData = document.getElementById('inputData');
-const submitBtn = document.getElementById('submitBtn');
-const siteList = document.getElementById('siteList');
 const deleteBtn = document.getElementById('deleteBtn');
+const submitBtn = document.getElementById('submitBtn');
+const modal = document.getElementById('modal');
+const closeModal = document.getElementsByClassName('close')[0];
+const inputData = document.getElementById('inputData');
+const siteList = document.getElementById('siteList');
 
 // 打开弹窗
 openModalBtn.addEventListener('click', () => {
@@ -32,21 +32,22 @@ openModalBtn.addEventListener('click', () => {
 });
 
 // 关闭弹窗
-closeModalBtn.addEventListener('click', () => {
+closeModal.addEventListener('click', () => {
     modal.style.display = 'none';
 });
 
-// 提交数据
+// 添加网站到Firebase数据库
 submitBtn.addEventListener('click', () => {
-    const lines = inputData.value.split('\n'); // 按行分割输入内容
-    lines.forEach(line => {
-        const [name, url] = line.split('|').map(item => item.trim()); // 分割名称和链接
+    const data = inputData.value.trim().split('\n').map(line => line.split('|').map(item => item.trim()));
+
+    // 解析数据并写入Firebase
+    data.forEach(([name, url]) => {
         if (name && url) {
             const newSiteRef = ref(database, 'sites/' + Date.now());
-            set(newSiteRef, { name, url }); // 写入Firebase数据库
+            set(newSiteRef, { name, url });
         }
     });
-    alert('软件库已添加！'); // 提示用户
+
     inputData.value = ''; // 清空输入框
     modal.style.display = 'none'; // 关闭弹窗
 });
@@ -56,111 +57,94 @@ onValue(ref(database, 'sites'), (snapshot) => {
     siteList.innerHTML = ''; // 清空当前列表
     snapshot.forEach((childSnapshot) => {
         const site = childSnapshot.val();
-        const siteId = childSnapshot.key; // 获取网站的ID
         const li = document.createElement('li');
-
-        // 创建输入框用于显示名称和链接
         li.innerHTML = `
-            <input type="text" class="site-name" value="${site.name}" disabled />
-            <input type="text" class="site-url" value="${site.url}" disabled />
-            <button class="edit-btn" data-id="${siteId}">修改</button>
-            <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
-            <button class="delete-btn" data-id="${siteId}" style="display:none;">删除</button>
-            <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none;" />
-        `; // 添加网站名称、链接和操作按钮
-        siteList.appendChild(li); // 将列表项添加到页面
+            <span class="site-name" contenteditable="false">${site.name}</span>
+            <a href="${site.url}" target="_blank">${site.url}</a>
+            <input type="checkbox" class="delete-checkbox" data-id="${childSnapshot.key}">
+            <button class="edit-btn" data-id="${childSnapshot.key}">修改</button>
+            <button class="save-btn" data-id="${childSnapshot.key}" style="display:none;">保存</button>
+        `;
+        siteList.appendChild(li);
     });
-    attachEventListeners(); // 绑定事件
+
+    attachEditSaveEvent();
 });
 
-// 绑定所有按钮的事件
-function attachEventListeners() {
+// 绑定修改和保存按钮事件
+function attachEditSaveEvent() {
     const editBtns = document.querySelectorAll('.edit-btn');
     const saveBtns = document.querySelectorAll('.save-btn');
-    const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
 
     editBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            const li = btn.parentElement; // 获取当前列表项
-            const siteId = btn.getAttribute('data-id'); // 获取对应网站的ID
-            li.querySelector('.site-name').removeAttribute('disabled'); // 启用编辑
-            li.querySelector('.site-url').removeAttribute('disabled'); // 启用编辑
+            const siteId = btn.getAttribute('data-id');
+            const li = btn.parentElement;
+            li.querySelector('.site-name').contentEditable = true; // 允许编辑
+            li.querySelector('.save-btn').style.display = 'inline'; // 显示保存按钮
             btn.style.display = 'none'; // 隐藏修改按钮
-            li.querySelector('.save-btn').style.display = 'inline-block'; // 显示保存按钮
-            li.querySelector('.save-btn').removeAttribute('disabled'); // 启用保存按钮
         });
     });
 
     saveBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            const li = btn.parentElement; // 获取当前列表项
-            const siteId = btn.getAttribute('data-id'); // 获取对应网站的ID
-            const name = li.querySelector('.site-name').value; // 获取编辑后的名称
-            const url = li.querySelector('.site-url').value; // 获取编辑后的链接
+            const siteId = btn.getAttribute('data-id');
+            const li = btn.parentElement;
+            const siteName = li.querySelector('.site-name').innerText;
+            const siteURL = li.querySelector('a').href;
 
-            if (name && url) {
-                set(ref(database, 'sites/' + siteId), { name, url }) // 更新Firebase数据库
-                    .then(() => {
-                        alert('网站信息已更新！'); // 提示用户
-                        btn.style.display = 'none'; // 隐藏保存按钮
-                        li.querySelector('.edit-btn').style.display = 'inline-block'; // 显示修改按钮
-                        li.querySelector('.site-name').setAttribute('disabled', 'true'); // 禁用编辑
-                        li.querySelector('.site-url').setAttribute('disabled', 'true'); // 禁用编辑
-                    })
-                    .catch((error) => {
-                        console.error('更新网站信息时出错：', error);
-                    });
-            } else {
-                alert('请填写完整的网站名称和链接。'); // 提示用户
-            }
+            set(ref(database, 'sites/' + siteId), { name: siteName, url: siteURL }) // 更新Firebase
+                .then(() => {
+                    li.querySelector('.site-name').contentEditable = false; // 关闭编辑
+                    btn.style.display = 'none'; // 隐藏保存按钮
+                    li.querySelector('.edit-btn').style.display = 'inline'; // 显示修改按钮
+                });
         });
     });
 }
 
-// 统一删除按钮事件
+// 删除软件库按钮事件
 deleteBtn.addEventListener('click', () => {
     const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
-    const deleteBtns = document.querySelectorAll('.delete-btn');
-    const confirmDelete = document.getElementById('confirmDelete');
-    
-    if (deleteBtn.textContent === "删除软件库") {
-        // 显示复选框以选择删除网站
-        deleteCheckboxes.forEach(checkbox => {
-            checkbox.style.display = 'inline'; // 显示复选框
-        });
-        deleteBtns.forEach(btn => {
-            btn.style.display = 'none'; // 隐藏单个删除按钮
-        });
-        deleteBtn.textContent = "确认删除库"; // 修改按钮文本
-    } else {
-        // 确认删除选中的网站
-        const selectedIds = Array.from(deleteCheckboxes)
-            .filter(checkbox => checkbox.checked)
-            .map(checkbox => checkbox.getAttribute('data-id'));
+    deleteCheckboxes.forEach(checkbox => {
+        checkbox.style.display = 'block'; // 显示复选框
+    });
 
-        selectedIds.forEach(siteId => {
-            remove(ref(database, 'sites/' + siteId)) // 从Firebase数据库删除
-                .then(() => {
-                    console.log('网站已删除');
-                })
-                .catch((error) => {
-                    console.error('删除网站时出错：', error);
-                });
-        });
-
-        deleteCheckboxes.forEach(checkbox => {
-            checkbox.style.display = 'none'; // 隐藏复选框
-        });
-        deleteBtns.forEach(btn => {
-            btn.style.display = 'inline'; // 显示单个删除按钮
-        });
-        deleteBtn.textContent = "删除软件库"; // 恢复按钮文本
-    }
+    deleteBtn.textContent = '确认删除库'; // 更改按钮文本
+    deleteBtn.onclick = confirmDelete; // 修改按钮事件
 });
 
-// 点击外部关闭弹窗
-window.onclick = (event) => {
-    if (event.target === modal) {
-        modal.style.display = 'none'; // 点击外部关闭弹窗
+// 确认删除库
+function confirmDelete() {
+    const deleteCheckboxes = document.querySelectorAll('.delete-checkbox:checked');
+    if (deleteCheckboxes.length === 0) {
+        alert('请先选择要删除的软件库。');
+        return; // 如果没有选择，返回
     }
-};
+
+    deleteCheckboxes.forEach(checkbox => {
+        const siteId = checkbox.getAttribute('data-id');
+        remove(ref(database, 'sites/' + siteId)); // 从Firebase删除
+    });
+
+    // 清除复选框和按钮状态
+    const deleteCheckboxesAll = document.querySelectorAll('.delete-checkbox');
+    deleteCheckboxesAll.forEach(checkbox => {
+        checkbox.style.display = 'none'; // 隐藏复选框
+        checkbox.checked = false; // 清空复选框选中状态
+    });
+    deleteBtn.textContent = '删除软件库'; // 恢复按钮文本
+}
+
+// 关闭模态框时隐藏复选框
+modal.addEventListener('click', (event) => {
+    if (event.target === modal) {
+        modal.style.display = 'none';
+        const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
+        deleteCheckboxes.forEach(checkbox => {
+            checkbox.style.display = 'none'; // 隐藏复选框
+            checkbox.checked = false; // 清空复选框选中状态
+        });
+        deleteBtn.textContent = '删除软件库'; // 恢复按钮文本
+    }
+});
