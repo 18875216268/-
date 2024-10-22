@@ -10,18 +10,11 @@
 <body>
     <div class="container">
         <h1>网站分享平台</h1>
-        <button id="openModalBtn">添加软件库</button>
-
-        <!-- 弹窗 -->
-        <div id="modal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>输入软件库信息</h2>
-                <textarea id="inputData" placeholder="软件库名称|软件库链接，每行一个"></textarea>
-                <button id="submitBtn">提交</button>
-            </div>
+        <div class="input-section">
+            <input type="text" id="siteName" placeholder="网站名称" />
+            <input type="text" id="siteURL" placeholder="网站链接" />
+            <button id="addBtn">添加网站</button>
         </div>
-
         <h2>已添加网站</h2>
         <ul id="siteList"></ul>
     </div>
