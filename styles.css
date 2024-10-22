@@ -1,124 +1,123 @@
-/* 基本样式 */
 body {
-    font-family: 'Arial', sans-serif; /* 使用Arial字体 */
-    background-color: #e9ecef; /* 页面背景颜色 */
-    margin: 0; /* 清除默认边距 */
-    padding: 20px; /* 页面内边距 */
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
 }
 
-/* 容器样式 */
 .container {
-    max-width: 600px; /* 最大宽度 */
-    margin: auto; /* 居中显示 */
-    background: #ffffff; /* 背景颜色 */
-    padding: 30px; /* 内边距 */
-    border-radius: 8px; /* 圆角边框 */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-/* 标题样式 */
-h1, h2 {
-    text-align: center; /* 居中 */
-    color: #333; /* 字体颜色 */
+h1 {
+    text-align: center;
+    color: #333;
 }
 
-/* 按钮样式 */
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
 .btn {
-    padding: 10px 20px; /* 内边距 */
-    background-color: #007bff; /* 背景颜色 */
-    color: #ffffff; /* 字体颜色 */
-    border: none; /* 去掉边框 */
-    border-radius: 4px; /* 圆角边框 */
-    cursor: pointer; /* 鼠标指针 */
-    transition: background-color 0.3s; /* 背景颜色过渡 */
-    display: block; /* 块级元素 */
-    margin: 10px auto; /* 上下间距，左右居中 */
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    flex: 1; /* 使按钮均分宽度 */
+    margin: 0 10px; /* 按钮之间的间距 */
 }
 
-/* 按钮悬停效果 */
 .btn:hover {
-    background-color: #0056b3; /* 悬停时的背景颜色 */
+    background-color: #0056b3;
 }
 
-/* 列表样式 */
-ul {
-    list-style-type: none; /* 去掉默认列表样式 */
-    padding: 0; /* 去掉内边距 */
-}
-
-/* 列表项样式 */
-li {
-    display: flex; /* 使用flex布局 */
-    justify-content: space-between; /* 两端对齐 */
-    align-items: center; /* 垂直居中 */
-    margin: 15px 0; /* 上下间距 */
-    padding: 15px; /* 内边距 */
-    background: #f8f9fa; /* 列表项背景颜色 */
-    border-radius: 4px; /* 圆角边框 */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 阴影效果 */
-}
-
-/* 超链接样式 */
-li a {
-    color: #007bff; /* 链接颜色 */
-    text-decoration: none; /* 去掉下划线 */
-}
-
-li a:hover {
-    text-decoration: underline; /* 悬停时显示下划线 */
-}
-
-/* 弹窗样式 */
 .modal {
-    display: none; /* 默认隐藏 */
-    position: fixed; /* 固定位置 */
-    z-index: 1000; /* 层级 */
-    left: 0; /* 左对齐 */
-    top: 0; /* 顶部对齐 */
-    width: 100%; /* 全宽 */
-    height: 100%; /* 全高 */
-    overflow: auto; /* 超出内容显示滚动条 */
-    background-color: rgba(0, 0, 0, 0.7); /* 半透明背景 */
+    display: none; /* 默认隐藏弹窗 */
+    position: fixed;
+    z-index: 1; /* 使弹窗在其他内容之上 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* 启用滚动 */
+    background-color: rgb(0,0,0); /* 黑色背景 */
+    background-color: rgba(0,0,0,0.4); /* 背景透明 */
 }
 
-/* 弹窗内容样式 */
 .modal-content {
-    background-color: #ffffff; /* 背景颜色 */
-    margin: 10% auto; /* 上下间距，居中 */
-    padding: 20px; /* 内边距 */
-    border-radius: 8px; /* 圆角边框 */
+    background-color: #fefefe;
+    margin: 15% auto; /* 在页面中间 */
+    padding: 20px;
+    border: 1px solid #888;
     width: 80%; /* 宽度 */
 }
 
-/* 关闭按钮样式 */
 .close {
-    color: #aaa; /* 颜色 */
-    float: right; /* 右浮动 */
-    font-size: 28px; /* 字体大小 */
-    font-weight: bold; /* 加粗 */
+    color: #aaa;
+    float: right; /* 右对齐 */
+    font-size: 28px;
+    font-weight: bold;
 }
 
 .close:hover,
 .close:focus {
-    color: #000; /* 悬停时颜色 */
-    text-decoration: none; /* 去掉下划线 */
-    cursor: pointer; /* 鼠标指针 */
+    color: black; /* 悬停时变黑 */
+    text-decoration: none;
+    cursor: pointer;
 }
 
-/* 文本区域样式 */
 textarea {
-    width: 100%; /* 宽度 */
+    width: 100%; /* 100%宽 */
     height: 100px; /* 高度 */
-    padding: 10px; /* 内边距 */
-    border: 1px solid #ccc; /* 边框 */
-    border-radius: 4px; /* 圆角边框 */
-    margin-bottom: 20px; /* 下间距 */
-    resize: none; /* 禁止调整大小 */
-    transition: border-color 0.3s; /* 边框颜色过渡 */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px; /* 底部间距 */
 }
 
-/* 文本区域聚焦效果 */
-textarea:focus {
-    border-color: #007bff; /* 聚焦时的边框颜色 */
-    outline: none; /* 去掉默认的轮廓 */
+ul {
+    list-style-type: none; /* 无列表样式 */
+    padding: 0; /* 取消内边距 */
+}
+
+li {
+    display: flex;
+    justify-content: space-between; /* 横向排列 */
+    align-items: center; /* 垂直居中 */
+    margin: 10px 0; /* 间距 */
+    padding: 10px;
+    border-bottom: 1px solid #ddd; /* 底部边框 */
+}
+
+input[type="text"] {
+    flex: 1; /* 占满可用空间 */
+    margin: 0 10px; /* 间距 */
+    padding: 5px; /* 内边距 */
+    border: 1px solid #ccc; /* 边框 */
+    border-radius: 4px; /* 圆角 */
+}
+
+.delete-btn, .edit-btn, .save-btn {
+    margin-left: 10px; /* 按钮左侧间距 */
+    padding: 5px 10px; /* 内边距 */
+    background-color: #dc3545; /* 删除按钮背景色 */
+    color: white; /* 字体颜色 */
+    border: none; /* 无边框 */
+    border-radius: 4px; /* 圆角 */
+    cursor: pointer; /* 光标手势 */
+    transition: background-color 0.3s; /* 动画 */
+}
+
+.delete-btn:hover, .edit-btn:hover, .save-btn:hover {
+    background-color: #c82333; /* 悬停时变色 */
 }
