@@ -1,7 +1,11 @@
 import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
 // 初始化Firebase数据库
-const database = getDatabase(); // 确保你在这里初始化数据库
+const database = getDatabase(); // 确保这里初始化数据库
+
+// 获取文件输入和上传按钮
+const fileInput = document.getElementById('fileInput');
+const uploadBtn = document.getElementById('uploadBtn');
 
 // 批量添加网站功能
 uploadBtn.addEventListener('click', () => {
