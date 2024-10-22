@@ -46,8 +46,8 @@ submitBtn.addEventListener('click', () => {
             set(newSiteRef, { name, url }); // 写入Firebase数据库
         }
     });
-    alert('软件库已添加！'); // 提示用户
-    inputData.value = ''; // 清空输入框
+    alert('软件库已添加！');
+    inputData.value = '';
     modal.style.display = 'none'; // 关闭弹窗
 });
 
@@ -56,19 +56,17 @@ onValue(ref(database, 'sites'), (snapshot) => {
     siteList.innerHTML = ''; // 清空当前列表
     snapshot.forEach((childSnapshot) => {
         const site = childSnapshot.val();
-        const siteId = childSnapshot.key; // 获取网站的ID
-        const li = document.createElement('li');
+        const siteId = childSnapshot.key;
 
-        // 创建输入框用于显示名称和链接
+        const li = document.createElement('li');
         li.innerHTML = `
             <input type="text" class="site-name" value="${site.name}" disabled />
             <input type="text" class="site-url" value="${site.url}" disabled />
             <button class="edit-btn" data-id="${siteId}">修改</button>
             <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
-            <button class="delete-btn" data-id="${siteId}" style="display:none;">删除</button>
-            <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none;" />
-        `; // 添加网站名称、链接和操作按钮
-        siteList.appendChild(li); // 将列表项添加到页面
+            <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none; transform: scale(1.5);" />
+        `; // 复选框稍大
+        siteList.appendChild(li); 
     });
     attachEventListeners(); // 绑定事件
 });
@@ -81,37 +79,37 @@ function attachEventListeners() {
 
     editBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            const li = btn.parentElement; // 获取当前列表项
-            const siteId = btn.getAttribute('data-id'); // 获取对应网站的ID
-            li.querySelector('.site-name').removeAttribute('disabled'); // 启用编辑
-            li.querySelector('.site-url').removeAttribute('disabled'); // 启用编辑
-            btn.style.display = 'none'; // 隐藏修改按钮
-            li.querySelector('.save-btn').style.display = 'inline-block'; // 显示保存按钮
-            li.querySelector('.save-btn').removeAttribute('disabled'); // 启用保存按钮
+            const li = btn.parentElement;
+            li.querySelector('.site-name').removeAttribute('disabled');
+            li.querySelector('.site-url').removeAttribute('disabled');
+            btn.style.display = 'none';
+            const saveBtn = li.querySelector('.save-btn');
+            saveBtn.style.display = 'inline-block';
+            saveBtn.removeAttribute('disabled');
         });
     });
 
     saveBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            const li = btn.parentElement; // 获取当前列表项
-            const siteId = btn.getAttribute('data-id'); // 获取对应网站的ID
-            const name = li.querySelector('.site-name').value; // 获取编辑后的名称
-            const url = li.querySelector('.site-url').value; // 获取编辑后的链接
+            const li = btn.parentElement;
+            const siteId = btn.getAttribute('data-id');
+            const name = li.querySelector('.site-name').value;
+            const url = li.querySelector('.site-url').value;
 
             if (name && url) {
-                set(ref(database, 'sites/' + siteId), { name, url }) // 更新Firebase数据库
+                set(ref(database, 'sites/' + siteId), { name, url })
                     .then(() => {
-                        alert('网站信息已更新！'); // 提示用户
-                        btn.style.display = 'none'; // 隐藏保存按钮
-                        li.querySelector('.edit-btn').style.display = 'inline-block'; // 显示修改按钮
-                        li.querySelector('.site-name').setAttribute('disabled', 'true'); // 禁用编辑
-                        li.querySelector('.site-url').setAttribute('disabled', 'true'); // 禁用编辑
+                        alert('网站信息已更新！');
+                        btn.style.display = 'none';
+                        li.querySelector('.edit-btn').style.display = 'inline-block';
+                        li.querySelector('.site-name').setAttribute('disabled', 'true');
+                        li.querySelector('.site-url').setAttribute('disabled', 'true');
                     })
                     .catch((error) => {
                         console.error('更新网站信息时出错：', error);
                     });
             } else {
-                alert('请填写完整的网站名称和链接。'); // 提示用户
+                alert('请填写完整的网站名称和链接。');
             }
         });
     });
@@ -120,47 +118,35 @@ function attachEventListeners() {
 // 统一删除按钮事件
 deleteBtn.addEventListener('click', () => {
     const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
-    const deleteBtns = document.querySelectorAll('.delete-btn');
-    const confirmDelete = document.getElementById('confirmDelete');
-    
+
     if (deleteBtn.textContent === "删除软件库") {
-        // 显示复选框以选择删除网站
         deleteCheckboxes.forEach(checkbox => {
-            checkbox.style.display = 'inline'; // 显示复选框
+            checkbox.style.display = 'inline-block';
         });
-        deleteBtns.forEach(btn => {
-            btn.style.display = 'none'; // 隐藏单个删除按钮
-        });
-        deleteBtn.textContent = "确认删除库"; // 修改按钮文本
+        deleteBtn.textContent = "确认删除库";
     } else {
-        // 确认删除选中的网站
         const selectedIds = Array.from(deleteCheckboxes)
             .filter(checkbox => checkbox.checked)
             .map(checkbox => checkbox.getAttribute('data-id'));
 
-        selectedIds.forEach(siteId => {
-            remove(ref(database, 'sites/' + siteId)) // 从Firebase数据库删除
-                .then(() => {
-                    console.log('网站已删除');
-                })
-                .catch((error) => {
-                    console.error('删除网站时出错：', error);
-                });
-        });
+        if (selectedIds.length > 0) {
+            selectedIds.forEach(siteId => {
+                remove(ref(database, 'sites/' + siteId))
+                    .then(() => {
+                        console.log('网站已删除');
+                    })
+                    .catch((error) => {
+                        console.error('删除网站时出错：', error);
+                    });
+            });
+        } else {
+            alert('没有选择任何要删除的软件库。'); // 没有选择时提示
+        }
 
         deleteCheckboxes.forEach(checkbox => {
-            checkbox.style.display = 'none'; // 隐藏复选框
+            checkbox.checked = false;
+            checkbox.style.display = 'none';
         });
-        deleteBtns.forEach(btn => {
-            btn.style.display = 'inline'; // 显示单个删除按钮
-        });
-        deleteBtn.textContent = "删除软件库"; // 恢复按钮文本
+        deleteBtn.textContent = "删除软件库"; // 恢复删除按钮文本
     }
 });
-
-// 点击外部关闭弹窗
-window.onclick = (event) => {
-    if (event.target === modal) {
-        modal.style.display = 'none'; // 点击外部关闭弹窗
-    }
-};
