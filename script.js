@@ -99,14 +99,13 @@ function attachEventListeners() {
             if (name && url) {
                 set(ref(database, 'sites/' + siteId), { name, url })
                     .then(() => {
-                        alert('网站信息已更新！');
                         btn.style.display = 'none';
                         li.querySelector('.edit-btn').style.display = 'inline-block';
                         li.querySelector('.site-name').setAttribute('disabled', 'true');
                         li.querySelector('.site-url').setAttribute('disabled', 'true');
                     })
                     .catch((error) => {
-                        console.error('更新网站信息时出错：', error);
+                        console.error('更新网站信息时出错！', error);
                     });
             } else {
                 alert('请填写完整的网站名称和链接。');
