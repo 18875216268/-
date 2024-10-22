@@ -24,6 +24,7 @@ const closeModalBtn = document.querySelector('.close');
 const inputData = document.getElementById('inputData');
 const submitBtn = document.getElementById('submitBtn');
 const siteList = document.getElementById('siteList');
+const deleteBtn = document.getElementById('deleteBtn');
 
 // 打开弹窗
 openModalBtn.addEventListener('click', () => {
@@ -64,7 +65,8 @@ onValue(ref(database, 'sites'), (snapshot) => {
             <input type="text" class="site-url" value="${site.url}" disabled />
             <button class="edit-btn" data-id="${siteId}">修改</button>
             <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
-            <button class="delete-btn" data-id="${siteId}">删除</button>
+            <button class="delete-btn" data-id="${siteId}" style="display:none;">删除</button>
+            <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none;" />
         `; // 添加网站名称、链接和操作按钮
         siteList.appendChild(li); // 将列表项添加到页面
     });
@@ -75,7 +77,7 @@ onValue(ref(database, 'sites'), (snapshot) => {
 function attachEventListeners() {
     const editBtns = document.querySelectorAll('.edit-btn');
     const saveBtns = document.querySelectorAll('.save-btn');
-    const deleteBtns = document.querySelectorAll('.delete-btn');
+    const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
 
     editBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -113,10 +115,30 @@ function attachEventListeners() {
             }
         });
     });
+}
 
-    deleteBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const siteId = btn.getAttribute('data-id'); // 获取对应网站的ID
+// 统一删除按钮事件
+deleteBtn.addEventListener('click', () => {
+    const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
+    const deleteBtns = document.querySelectorAll('.delete-btn');
+    const confirmDelete = document.getElementById('confirmDelete');
+    
+    if (deleteBtn.textContent === "删除软件库") {
+        // 显示复选框以选择删除网站
+        deleteCheckboxes.forEach(checkbox => {
+            checkbox.style.display = 'inline'; // 显示复选框
+        });
+        deleteBtns.forEach(btn => {
+            btn.style.display = 'none'; // 隐藏单个删除按钮
+        });
+        deleteBtn.textContent = "确认删除库"; // 修改按钮文本
+    } else {
+        // 确认删除选中的网站
+        const selectedIds = Array.from(deleteCheckboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.getAttribute('data-id'));
+
+        selectedIds.forEach(siteId => {
             remove(ref(database, 'sites/' + siteId)) // 从Firebase数据库删除
                 .then(() => {
                     console.log('网站已删除');
@@ -125,8 +147,16 @@ function attachEventListeners() {
                     console.error('删除网站时出错：', error);
                 });
         });
-    });
-}
+
+        deleteCheckboxes.forEach(checkbox => {
+            checkbox.style.display = 'none'; // 隐藏复选框
+        });
+        deleteBtns.forEach(btn => {
+            btn.style.display = 'inline'; // 显示单个删除按钮
+        });
+        deleteBtn.textContent = "删除软件库"; // 恢复按钮文本
+    }
+});
 
 // 点击外部关闭弹窗
 window.onclick = (event) => {
