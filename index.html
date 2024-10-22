@@ -6,18 +6,22 @@
     <title>网站分享平台</title>
     <link rel="stylesheet" href="styles.css">
     <script type="module" src="script.js" defer></script>
-    <script type="module" src="piliangtianjia.js" defer></script>
 </head>
 <body>
     <div class="container">
         <h1>网站分享平台</h1>
-        <div class="input-section">
-            <input type="file" id="fileInput" />
-            <button id="uploadBtn">批量添加网站</button>
-            <input type="text" id="siteName" placeholder="网站名称" />
-            <input type="text" id="siteURL" placeholder="网站链接" />
-            <button id="addBtn">添加网站</button>
+        <button id="openModalBtn">添加软件库</button>
+
+        <!-- 弹窗 -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>输入软件库信息</h2>
+                <textarea id="inputData" placeholder="软件库名称|软件库链接，每行一个"></textarea>
+                <button id="submitBtn">提交</button>
+            </div>
         </div>
+
         <h2>已添加网站</h2>
         <ul id="siteList"></ul>
     </div>
