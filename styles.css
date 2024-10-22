@@ -108,8 +108,8 @@ input[type="text"] {
 }
 
 .delete-btn, .edit-btn, .save-btn {
-    margin-left: 30px; /* 按钮左侧间距 */
-    margin-right: 30px; /* 按钮右侧间距 */
+    margin-left: 10px; /* 按钮左侧间距 */
+    margin-right: 20px; /* 按钮右侧间距 */
     padding: 5px 10px; /* 内边距 */
     background-color: #dc3545; /* 删除按钮背景色 */
     color: white; /* 字体颜色 */
@@ -125,10 +125,10 @@ input[type="text"] {
 
 /* 增大复选框 */
 .delete-checkbox {
-    width: 10px;
-    height: 10px;
+    width: 15px;
+    height: 150px;
     margin-right: 10px;
-    margin-left: 20px; /* 按钮左侧间距 */
+    margin-left: 10px; /* 按钮左侧间距 */
 }
 
 /* 输入框样式调整 */
