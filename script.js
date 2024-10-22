@@ -58,12 +58,12 @@ onValue(ref(database, 'sites'), (snapshot) => {
         const siteId = childSnapshot.key; // 获取网站的ID
         const li = document.createElement('li');
 
-        // 创建输入框用于编辑名称和链接
+        // 创建输入框用于显示名称和链接
         li.innerHTML = `
-            <input type="text" class="site-name" value="${site.name}" />
-            <input type="text" class="site-url" value="${site.url}" />
+            <input type="text" class="site-name" value="${site.name}" disabled />
+            <input type="text" class="site-url" value="${site.url}" disabled />
             <button class="edit-btn" data-id="${siteId}">修改</button>
-            <button class="save-btn" data-id="${siteId}" style="display:none;">保存</button>
+            <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
             <button class="delete-btn" data-id="${siteId}">删除</button>
         `; // 添加网站名称、链接和操作按钮
         siteList.appendChild(li); // 将列表项添加到页面
@@ -85,6 +85,7 @@ function attachEventListeners() {
             li.querySelector('.site-url').removeAttribute('disabled'); // 启用编辑
             btn.style.display = 'none'; // 隐藏修改按钮
             li.querySelector('.save-btn').style.display = 'inline-block'; // 显示保存按钮
+            li.querySelector('.save-btn').removeAttribute('disabled'); // 启用保存按钮
         });
     });
 
@@ -101,6 +102,8 @@ function attachEventListeners() {
                         alert('网站信息已更新！'); // 提示用户
                         btn.style.display = 'none'; // 隐藏保存按钮
                         li.querySelector('.edit-btn').style.display = 'inline-block'; // 显示修改按钮
+                        li.querySelector('.site-name').setAttribute('disabled', 'true'); // 禁用编辑
+                        li.querySelector('.site-url').setAttribute('disabled', 'true'); // 禁用编辑
                     })
                     .catch((error) => {
                         console.error('更新网站信息时出错：', error);
