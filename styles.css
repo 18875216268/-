@@ -121,3 +121,9 @@ input[type="text"] {
 .delete-btn:hover, .edit-btn:hover, .save-btn:hover {
     background-color: #c82333; /* 悬停时变色 */
 }
+
+.delete-checkbox {
+    width: 20px; /* 增大复选框的宽度 */
+    height: 20px; /* 增大复选框的高度 */
+    margin-right: 10px; /* 增加复选框与其他元素的间距 */
+}
