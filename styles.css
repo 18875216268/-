@@ -56,10 +56,10 @@ h1 {
 
 .modal-content {
     background-color: #fefefe;
-    margin: 15% auto; /* 在页面中间 */
+    margin: 10% auto; /* 在页面中间 */
     padding: 20px;
     border: 1px solid #888;
-    width: 80%; /* 宽度 */
+    width: 40%; /* 宽度 */
 }
 
 .close {
