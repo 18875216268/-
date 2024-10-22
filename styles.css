@@ -122,8 +122,15 @@ input[type="text"] {
     background-color: #c82333; /* 悬停时变色 */
 }
 
+/* 增大复选框 */
 .delete-checkbox {
-    width: 20px; /* 增大复选框的宽度 */
-    height: 20px; /* 增大复选框的高度 */
-    margin-right: 10px; /* 增加复选框与其他元素的间距 */
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+/* 输入框样式调整 */
+.site-name, .site-url {
+    width: 40%;
+    margin-right: 10px;
 }
