@@ -46,7 +46,6 @@ tijiao.addEventListener('click', () => {
             set(newSiteRef, { name, url }); // 写入Firebase数据库
         }
     });
-    alert('软件库已添加！');
     inputData.value = '';
     modal.style.display = 'none'; // 关闭弹窗
 });
