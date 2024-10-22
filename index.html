@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>网站分享平台</title>
+    <title>管理软件库</title>
     <link rel="stylesheet" href="styles.css">
     <script type="module" src="script.js" defer></script>
 </head>
 <body>
     <div class="container">
-        <h1>网站分享平台</h1>
-        <button id="openModalBtn" class="btn">添加软件库</button>
-        <button id="deleteBtn" class="btn">删除软件库</button>
+        <h1>管理软件库</h1>
+        <div class="button-container">
+            <button id="openModalBtn" class="btn">添加软件库</button>
+            <button id="deleteBtn" class="btn">删除软件库</button>
+        </div>
 
         <!-- 弹窗 -->
         <div id="modal" class="modal">
@@ -23,7 +25,6 @@
             </div>
         </div>
 
-        <h2>已添加网站</h2>
         <ul id="siteList"></ul>
     </div>
 </body>
