@@ -50,16 +50,17 @@ h1 {
     width: 100%;
     height: 100%;
     overflow: auto; /* 启用滚动 */
-    background-color: rgb(0,0,0); /* 黑色背景 */
-    background-color: rgba(0,0,0,0.4); /* 背景透明 */
+    background-color: rgba(0, 0, 0, 0.4); /* 背景透明 */
 }
 
 .modal-content {
     background-color: #fefefe;
-    margin: 10% auto; /* 在页面中间 */
+    margin: 5% auto; /* 在页面中间，距离顶部有间距 */
     padding: 20px;
     border: 1px solid #888;
-    width: 40%; /* 宽度 */
+    border-radius: 8px; /* 圆角 */
+    max-width: 500px; /* 最大宽度 */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* 阴影效果 */
 }
 
 .close {
@@ -76,13 +77,20 @@ h1 {
     cursor: pointer;
 }
 
+h2 {
+    text-align: center; /* 标题居中 */
+    color: #333;
+    margin-bottom: 15px; /* 标题与输入框之间的间距 */
+}
+
 textarea {
     width: 100%; /* 100%宽 */
     height: 100px; /* 高度 */
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    margin-bottom: 10px; /* 底部间距 */
+    margin-bottom: 15px; /* 增加底部间距 */
+    resize: none; /* 禁止调整大小 */
 }
 
 ul {
@@ -128,7 +136,7 @@ input[type="text"] {
     width: 15px;
     height: 15px;
     margin-right: 10px;
-    margin-left: 10px; /* 按钮左侧间距 */
+    margin-left: 10px; /* 增加左侧间距 */
 }
 
 /* 输入框样式调整 */
