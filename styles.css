@@ -58,6 +58,7 @@ h1 {
     background-color: #0056b3;  /* 悬停时改变背景色 */
 }
 
+
 .modal {
     display: none; /* 默认隐藏弹窗 */
     position: fixed;
@@ -144,7 +145,7 @@ input[type="text"] {
     transition: background-color 0.3s; /* 动画 */
 }
 
-.edit-btn:hover, .save-btn:hover {
+ .edit-btn:hover, .save-btn:hover {
     background-color: #c82333; /* 悬停时变色 */
 }
 
