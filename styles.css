@@ -133,20 +133,9 @@ input[type="text"] {
     border-radius: 4px; /* 圆角 */
 }
 
-.edit-btn, .save-btn {
+.edit-btn, delete-single-btn ,.save-btn {
     margin-left: 10px; /* 按钮左侧间距 */
     margin-right: 10px; /* 按钮右侧间距 */
-    padding: 5px 10px; /* 内边距 */
-    background-color: #dc3545; /* 删除按钮背景色 */
-    color: white; /* 字体颜色 */
-    border: none; /* 无边框 */
-    border-radius: 4px; /* 圆角 */
-    cursor: pointer; /* 光标手势 */
-    transition: background-color 0.3s; /* 动画 */
-}
-
- .edit-btn:hover, .save-btn:hover {
-    background-color: #c82333; /* 悬停时变色 */
 }
 
 /* 增大复选框 */
