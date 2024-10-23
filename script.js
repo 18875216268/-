@@ -166,15 +166,21 @@ deleteBtn.addEventListener('click', () => {
 
 // 检查URL有效性并测量延迟
 async function checkURLLatency(url) {
+    const corsProxy = 'https://cors-anywhere.herokuapp.com/'; // CORS Anywhere代理地址
     const startTime = performance.now();
     try {
-        const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+        const response = await fetch(corsProxy + url, { method: 'HEAD' }); // 使用代理请求
+        if (!response.ok) {
+            throw new Error('无效链接');
+        }
         const latency = Math.round(performance.now() - startTime);
         return latency;
     } catch (error) {
         console.error('获取URL时出错:', error);
-        return null; // 如果URL无效或无法访问，返回null
+        return null; // 返回null以指示无法访问
     }
 }
+
+
 
 
