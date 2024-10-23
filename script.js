@@ -55,25 +55,50 @@ tijiao.addEventListener('click', async () => {
     modal.style.display = 'none'; // 关闭弹窗
 });
 
-// 从Firebase获取网站列表
+// 在获取网站列表的代码中添加删除按钮
 onValue(ref(database, 'sites'), (snapshot) => {
-    siteList.innerHTML = ''; // 清空当前列表
+    siteList.innerHTML = '<li><input type="checkbox" id="selectAllCheckbox" /><label for="selectAllCheckbox">全选</label></li>'; // 重置列表并添加全选复选框
     snapshot.forEach((childSnapshot) => {
         const site = childSnapshot.val();
         const siteId = childSnapshot.key;
 
         const li = document.createElement('li');
         li.innerHTML = `
+            <input type="checkbox" class="delete-checkbox" data-id="${siteId}" />
             <input type="text" class="site-name" value="${site.name}" disabled />
             <input type="text" class="site-url" value="${site.url}" disabled />
-            <span class="latency">${site.latency || 'N/A'} ms</span> <!-- 从数据库读取延迟数 -->
+            <span class="latency">${site.latency || 'N/A'} ms</span>
             <button class="edit-btn" data-id="${siteId}">修改</button>
             <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
-            <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none; transform: scale(1.5);" />
+            <button class="delete-single-btn" data-id="${siteId}">删除</button> <!-- 单独删除按钮 -->
         `;
         siteList.appendChild(li);
     });
     attachEventListeners(); // 绑定事件
+});
+
+// 添加全选功能
+document.getElementById('siteList').addEventListener('change', (event) => {
+    if (event.target.id === 'selectAllCheckbox') {
+        const checkboxes = document.querySelectorAll('.delete-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = event.target.checked; // 根据全选复选框的状态来勾选或取消勾选
+        });
+    }
+});
+
+// 单独删除按钮的事件
+siteList.addEventListener('click', (event) => {
+    if (event.target.classList.contains('delete-single-btn')) {
+        const siteId = event.target.getAttribute('data-id');
+        remove(ref(database, 'sites/' + siteId))
+            .then(() => {
+                console.log('网站已删除');
+            })
+            .catch((error) => {
+                console.error('删除网站时出错：', error);
+            });
+    }
 });
 
 // 绑定所有按钮的事件
@@ -180,7 +205,6 @@ async function checkURLLatency(url) {
         return null; // 返回null以指示无法访问
     }
 }
-
 
 
 
