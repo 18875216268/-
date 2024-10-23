@@ -66,7 +66,7 @@ onValue(ref(database, 'sites'), (snapshot) => {
         li.innerHTML = `
             <input type="text" class="site-name" value="${site.name}" disabled />
             <input type="text" class="site-url" value="${site.url}" disabled />
-            <span class="latency">${site.latency || 'N/A'} ms</span> <!-- 只显示数值和单位 -->
+            <span class="latency">${site.latency || 'N/A'} ms</span> <!-- 从数据库读取延迟数 -->
             <button class="edit-btn" data-id="${siteId}">修改</button>
             <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
             <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none; transform: scale(1.5);" />
