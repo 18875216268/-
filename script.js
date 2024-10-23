@@ -193,18 +193,34 @@ deleteBtn.addEventListener('click', () => {
 async function checkURLLatency(url) {
     const corsProxy = 'https://cors.bridged.cc/'; // CORS Anywhere代理地址
     const startTime = performance.now();
+
+    // 尝试使用CORS代理请求
     try {
-        const response = await fetch(corsProxy + url, { method: 'HEAD' }); // 使用代理请求
+        const response = await fetch(corsProxy + url, { method: 'HEAD' });
         if (!response.ok) {
             throw new Error('无效链接');
         }
         const latency = Math.round(performance.now() - startTime);
         return latency;
     } catch (error) {
-        console.error('获取URL时出错:', error);
+        console.error('使用代理检测URL时出错:', error);
+    }
+
+    // 如果使用代理失败，尝试直接请求
+    try {
+        const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+        const latency = Math.round(performance.now() - startTime);
+        if (response.ok) {
+            return latency;
+        } else {
+            throw new Error('无效链接');
+        }
+    } catch (error) {
+        console.error('直接检测URL时出错:', error);
         return null; // 返回null以指示无法访问
     }
 }
+
 
 
 
