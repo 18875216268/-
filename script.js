@@ -191,12 +191,18 @@ deleteBtn.addEventListener('click', () => {
 
 // 检查URL有效性并测量延迟
 async function checkURLLatency(url) {
-    const corsProxy = 'https://cors.bridged.cc/'; // CORS Anywhere代理地址
+    const corsProxy = 'https://proxy.cors.sh/'; // 更新为新的CORS代理地址
+    const apiKey = 'temp_1200b21d21d7f70a5e4d88b86a7517a5'; // 替换为你的API秘钥
     const startTime = performance.now();
 
     // 尝试使用CORS代理请求
     try {
-        const response = await fetch(corsProxy + url, { method: 'HEAD' });
+        const response = await fetch(corsProxy + url, {
+            method: 'HEAD',
+            headers: {
+                'x-cors-api-key': apiKey
+            }
+        });
         if (!response.ok) {
             throw new Error('无效链接');
         }
@@ -220,7 +226,3 @@ async function checkURLLatency(url) {
         return null; // 返回null以指示无法访问
     }
 }
-
-
-
-
