@@ -191,7 +191,7 @@ deleteBtn.addEventListener('click', () => {
 
 // 检查URL有效性并测量延迟
 async function checkURLLatency(url) {
-    const corsProxy = 'https://proxy.cors.sh/'; // 更新为新的CORS代理地址
+    const corsProxy = 'https://cors-anywhere.herokuapp.com/'; // 更新为新的CORS代理地址
     const apiKey = 'temp_1200b21d21d7f70a5e4d88b86a7517a5'; // 替换为你的API秘钥
     const startTime = performance.now();
 
