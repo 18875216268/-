@@ -37,15 +37,20 @@ closeModalBtn.addEventListener('click', () => {
 });
 
 // 提交数据
-tijiao.addEventListener('click', () => {
+tijiao.addEventListener('click', async () => {
     const lines = inputData.value.split('\n'); // 按行分割输入内容
-    lines.forEach(line => {
+    for (const line of lines) {
         const [name, url] = line.split('|').map(item => item.trim()); // 分割名称和链接
         if (name && url) {
             const newSiteRef = ref(database, 'sites/' + Date.now());
-            set(newSiteRef, { name, url }); // 写入Firebase数据库
+            
+            const latency = await checkURLLatency(url); // 检查URL延迟
+            const data = { name, url, latency: latency || 'N/A' }; // 保存延迟或'N/A'
+            
+            await set(newSiteRef, data); // 写入Firebase数据库
         }
-    });
+    }
+    alert('软件库已添加！');
     inputData.value = '';
     modal.style.display = 'none'; // 关闭弹窗
 });
@@ -61,11 +66,12 @@ onValue(ref(database, 'sites'), (snapshot) => {
         li.innerHTML = `
             <input type="text" class="site-name" value="${site.name}" disabled />
             <input type="text" class="site-url" value="${site.url}" disabled />
+            <span class="latency">${site.latency || 'N/A'} ms</span> <!-- 只显示数值和单位 -->
             <button class="edit-btn" data-id="${siteId}">修改</button>
             <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
             <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none; transform: scale(1.5);" />
-        `; // 复选框稍大
-        siteList.appendChild(li); 
+        `;
+        siteList.appendChild(li);
     });
     attachEventListeners(); // 绑定事件
 });
@@ -75,6 +81,8 @@ function attachEventListeners() {
     const editBtns = document.querySelectorAll('.edit-btn');
     const saveBtns = document.querySelectorAll('.save-btn');
     const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
+    const checkLatencyBtn = document.getElementById('checkLatencyBtn'); // 获取检测延迟按钮
+
 
     editBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -111,6 +119,16 @@ function attachEventListeners() {
             }
         });
     });
+
+    // 检测软件库延迟
+    checkLatencyBtn.addEventListener('click', async () => {
+        const latencyElements = document.querySelectorAll('.latency'); // 获取所有延迟显示元素
+        for (const element of latencyElements) {
+            const url = element.previousElementSibling.value; // 获取对应的URL
+            const latency = await checkURLLatency(url); // 检测延迟
+            element.textContent = `${latency !== null ? latency + ' ms' : '-1'}`; // 更新显示延迟数值和单位
+        }
+    });
 }
 
 // 统一删除按钮事件
@@ -145,3 +163,18 @@ deleteBtn.addEventListener('click', () => {
         deleteBtn.textContent = "删除软件库"; // 恢复删除按钮文本
     }
 });
+
+// 检查URL有效性并测量延迟
+async function checkURLLatency(url) {
+    const startTime = performance.now();
+    try {
+        const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+        const latency = Math.round(performance.now() - startTime);
+        return latency;
+    } catch (error) {
+        console.error('获取URL时出错:', error);
+        return null; // 如果URL无效或无法访问，返回null
+    }
+}
+
+
