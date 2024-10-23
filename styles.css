@@ -162,3 +162,9 @@ input[type="text"] {
     width: 40%;
     margin-right: 10px;
 }
+
+.latency {
+    margin-left: 10px; /* 左侧间距 */
+    font-size: 0.9em; /* 字体大小 */
+    color: #666; /* 字体颜色 */
+}
