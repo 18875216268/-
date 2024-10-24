@@ -16,11 +16,19 @@
             <button id="checkLatencyBtn" class="btn">检测软件库</button>
         </div>
 
-        <!-- 全选按钮和复选框容器，始终显示 -->
+        <!-- 弹窗 -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>输入软件库信息</h2>
+                <textarea id="inputData" placeholder="软件库名称|软件库链接，每行一个"></textarea>
+                <button id="tijiao" class="bth">提交</button>
+            </div>
+        </div>
+
+        <!-- 全选复选框的容器，始终显示 -->
         <div id="selectAllContainer" class="select-all-container">
-            <!-- 全选按钮 -->
-            <button id="selectAllBtn" class="btn">全选</button>
-            <!-- 全选复选框 -->
+            <label for="selectAllCheckbox" class="btn">全选</label>
             <input type="checkbox" id="selectAllCheckbox" style="display:none;" />
         </div>
 
