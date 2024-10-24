@@ -61,7 +61,6 @@ onValue(ref(database, 'sites'), (snapshot) => {
     siteList.innerHTML = ''; // 清空当前列表
 
     // 检查是否有可显示的站点
-    let index = 1; // 初始化编号
     if (snapshot.exists()) {
         snapshot.forEach((childSnapshot) => {
             const site = childSnapshot.val();
@@ -69,7 +68,6 @@ onValue(ref(database, 'sites'), (snapshot) => {
 
             const li = document.createElement('li');
             li.innerHTML = `
-                <span class="site-index">${index++}</span> <!-- 自动编号 -->
                 <input type="text" class="site-name" value="${site.name}" disabled />
                 <input type="text" class="site-url" value="${site.url}" disabled />
                 <span class="latency" id="latency-${siteId}">未检测</span> 
