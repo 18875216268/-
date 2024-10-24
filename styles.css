@@ -180,3 +180,30 @@ input[type="text"] {
     margin-bottom: 10px; /* 容器底部的间距 */
     padding: 10px 0; /* 上下内边距 */
 }
+
+/* 列表标题行样式 */
+.list-header {
+    display: grid; /* 使用网格布局使各列对齐 */
+    grid-template-columns: 80px 105px 190px 68px 210px; /* 确保各列宽度与实际列表保持一致 */
+    align-items: center;
+    gap: 20px; /* 设置列之间的间距 */
+    font-weight: bold;
+    padding: 10px;
+    border-bottom: 2px solid #ddd; /* 底部边框用于区分标题和内容 */
+    position: sticky; /* 标题行固定在列表顶部 */
+    z-index: 1; /* 确保标题行在内容之上 */
+    text-align: center; /* 标题内容居中 */
+}
+
+/* 修改标题行各个元素的样式 */
+.list-header .xuhap,
+.list-header .mingcheng,
+.list-header .lianjie,
+.list-header .yan-chi,
+.list-header .caozuo {
+    font-size: 16px; /* 修改字体大小为 16px */
+    color: #333; /* 修改字体颜色为较深的灰色，便于阅读 */
+    font-weight: bold; /* 加粗字体 */
+    padding: 5px 0; /* 添加上下间距，保证内容在单元格内有一定空间 */
+    text-align: center; /* 居中对齐 */
+}
