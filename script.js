@@ -39,7 +39,7 @@ closeModalBtn.addEventListener('click', () => {
     modal.style.display = 'none';
 });
 
-// 提交数据
+// 提交数据并自动重新检测所有软件库
 tijiao.addEventListener('click', async () => {
     const lines = inputData.value.split('\n'); // 按行分割输入内容
     for (const line of lines) {
@@ -53,9 +53,10 @@ tijiao.addEventListener('click', async () => {
     alert('软件库已添加！');
     inputData.value = '';
     modal.style.display = 'none'; // 关闭弹窗
+    checkAllSitesLatency(); // 新增软件库后，自动检测所有软件库延迟
 });
 
-// 从Firebase获取网站列表
+// 从Firebase获取网站列表并自动检测延迟
 onValue(ref(database, 'sites'), (snapshot) => {
     siteList.innerHTML = ''; // 清空当前列表
 
@@ -77,6 +78,8 @@ onValue(ref(database, 'sites'), (snapshot) => {
             `;
             siteList.appendChild(li);
         });
+        // 获取列表后，自动检测所有软件库延迟
+        checkAllSitesLatency();
     } else {
         selectAllContainer.style.display = 'none'; // 如果没有站点，不显示全选容器
     }
@@ -125,13 +128,8 @@ function attachEventListeners() {
         });
     });
 
-    checkLatencyBtn.addEventListener('click', async () => {
-        const statusElements = document.querySelectorAll('.latency'); // 获取所有状态显示元素
-        for (const element of statusElements) {
-            const url = element.previousElementSibling.value; // 获取对应的URL
-            const latency = await checkURLLatency(url); // 检测延迟
-            element.textContent = `${latency} ms`; // 更新延迟显示
-        }
+    checkLatencyBtn.addEventListener('click', () => {
+        checkAllSitesLatency(); // 手动点击“检测软件库”时，检测所有软件库延迟
     });
 
     document.querySelectorAll('.delete-single-btn').forEach(btn => {
@@ -162,6 +160,7 @@ deleteBtn.addEventListener('click', () => {
             selectedIds.forEach(siteId => {
                 deleteSite(siteId);
             });
+            checkAllSitesLatency(); // 删除软件库后，自动检测剩余库的延迟
         }
         // 隐藏复选框和全选容器
         deleteCheckboxes.forEach(checkbox => {
@@ -184,16 +183,26 @@ function deleteSite(siteId) {
         });
 }
 
-// 检查URL延迟并返回延迟时间
+// 检查URL延迟并返回延迟时间或异常
 async function checkURLLatency(url) {
     const start = Date.now();
     try {
         await fetch(url, { method: 'HEAD', mode: 'no-cors' });
         const latency = Date.now() - start;
-        return latency;
+        return `${latency} ms`;
     } catch (error) {
         console.error('无法访问URL:', error);
-        return '无法检测';
+        return '异常';
+    }
+}
+
+// 自动检测所有软件库的延迟
+async function checkAllSitesLatency() {
+    const statusElements = document.querySelectorAll('.latency'); // 获取所有状态显示元素
+    for (const element of statusElements) {
+        const url = element.previousElementSibling.value; // 获取对应的URL
+        const latency = await checkURLLatency(url); // 检测延迟
+        element.textContent = latency; // 更新延迟显示
     }
 }
 
