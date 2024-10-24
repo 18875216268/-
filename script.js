@@ -26,8 +26,8 @@ const tijiao = document.getElementById('tijiao');
 const siteList = document.getElementById('siteList');
 const deleteBtn = document.getElementById('deleteBtn');
 const checkLatencyBtn = document.getElementById('checkLatencyBtn');
-const selectAllContainer = document.getElementById('selectAllContainer');
-const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+const selectAllContainer = document.getElementById('selectAllContainer'); // 获取全选容器
+const selectAllCheckbox = document.getElementById('selectAllCheckbox'); // 获取全选复选框
 
 // 打开弹窗
 openModalBtn.addEventListener('click', () => {
@@ -59,16 +59,15 @@ tijiao.addEventListener('click', async () => {
 // 从Firebase获取网站列表并自动检测延迟
 onValue(ref(database, 'sites'), (snapshot) => {
     siteList.innerHTML = ''; // 清空当前列表
-    let index = 1; // 序号从1开始
+
+    // 检查是否有可显示的站点
     if (snapshot.exists()) {
         snapshot.forEach((childSnapshot) => {
             const site = childSnapshot.val();
             const siteId = childSnapshot.key;
 
-            // 创建列表项
             const li = document.createElement('li');
             li.innerHTML = `
-                <span class="index">${index}.</span>
                 <input type="text" class="site-name" value="${site.name}" disabled />
                 <input type="text" class="site-url" value="${site.url}" disabled />
                 <span class="latency" id="latency-${siteId}">未检测</span> 
@@ -77,20 +76,14 @@ onValue(ref(database, 'sites'), (snapshot) => {
                 <button class="delete-single-btn" data-id="${siteId}">删除</button>
                 <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none;" />
             `;
-            siteList.appendChild(li); // 添加列表项到页面中
-            index++; // 更新序号
+            siteList.appendChild(li);
         });
-
-        // 如果有软件库，显示全选容器
-        selectAllContainer.style.display = 'block';
-        selectAllCheckbox.checked = false; // 重置全选复选框状态
-        checkAllSitesLatency(); // 获取列表后，自动检测所有软件库延迟
+        // 获取列表后，自动检测所有软件库延迟
+        checkAllSitesLatency();
     } else {
-        // 如果没有软件库，隐藏全选容器
-        selectAllContainer.style.display = 'none';
+        selectAllContainer.style.display = 'none'; // 如果没有站点，不显示全选容器
     }
-
-    attachEventListeners(); // 绑定所有按钮的事件
+    attachEventListeners(); // 绑定事件
 });
 
 // 绑定所有按钮的事件
@@ -152,60 +145,55 @@ deleteBtn.addEventListener('click', () => {
     const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
 
     if (deleteBtn.textContent === "批量删除库") {
-        // 显示所有删除复选框，并显示全选复选框
+        // 显示复选框并显示全选容器
         deleteCheckboxes.forEach(checkbox => {
             checkbox.style.display = 'inline-block';
         });
-        selectAllCheckbox.style.display = 'inline-block'; // 显示全选复选框
+        selectAllContainer.style.display = 'block'; // 显示全选复选框行
         deleteBtn.textContent = "确认删除库";
     } else {
-        // 获取所有选中的复选框对应的软件库ID
         const selectedIds = Array.from(deleteCheckboxes)
             .filter(checkbox => checkbox.checked)
             .map(checkbox => checkbox.getAttribute('data-id'));
 
-        // 如果有选中的库，删除对应的软件库
         if (selectedIds.length > 0) {
             selectedIds.forEach(siteId => {
-                deleteSite(siteId); // 调用删除函数
+                deleteSite(siteId);
             });
-            checkAllSitesLatency(); // 删除软件库后，重新检测延迟
+            checkAllSitesLatency(); // 删除软件库后，自动检测剩余库的延迟
         }
-
-        // 隐藏删除复选框和全选复选框
+        // 隐藏复选框和全选容器
         deleteCheckboxes.forEach(checkbox => {
-            checkbox.checked = false; // 重置复选框状态
-            checkbox.style.display = 'none'; // 隐藏复选框
+            checkbox.checked = false;
+            checkbox.style.display = 'none';
         });
-
-        // 根据剩余软件库数量决定是否显示全选复选框
-        if (deleteCheckboxes.length > 0) {
-            selectAllCheckbox.style.display = 'inline-block'; // 仍有站点时显示全选复选框
-        } else {
-            selectAllCheckbox.style.display = 'none'; // 没有站点时隐藏全选复选框
-        }
-
+        selectAllContainer.style.display = 'none'; // 隐藏全选复选框行
         deleteBtn.textContent = "批量删除库";
     }
 });
 
-// 绑定全选复选框功能
-selectAllCheckbox.addEventListener('change', () => {
-    const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
-    deleteCheckboxes.forEach(checkbox => {
-        checkbox.checked = selectAllCheckbox.checked; // 全选/取消全选
-    });
-});
-
-// 删除软件库函数
+// 从Firebase删除特定的软件库
 function deleteSite(siteId) {
-    remove(ref(database, 'sites/' + siteId)) // 从Firebase删除指定软件库
+    remove(ref(database, 'sites/' + siteId))
         .then(() => {
             console.log('软件库已删除');
         })
         .catch((error) => {
             console.error('删除时出错:', error);
         });
+}
+
+// 检查URL延迟并返回延迟时间或异常
+async function checkURLLatency(url) {
+    const start = Date.now();
+    try {
+        await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+        const latency = Date.now() - start;
+        return `${latency} ms`;
+    } catch (error) {
+        console.error('无法访问URL:', error);
+        return '异常';
+    }
 }
 
 // 自动检测所有软件库的延迟
@@ -218,15 +206,10 @@ async function checkAllSitesLatency() {
     }
 }
 
-// 检测URL延迟的函数
-async function checkURLLatency(url) {
-    const start = Date.now();
-    try {
-        await fetch(url, { method: 'HEAD', mode: 'no-cors' });
-        const latency = Date.now() - start;
-        return `${latency} ms`; // 返回延迟时间
-    } catch (error) {
-        console.error('无法访问URL:', error);
-        return '异常'; // 如果无法访问，返回异常
-    }
-}
+// 绑定全选功能
+selectAllCheckbox.addEventListener('change', () => {
+    const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
+    deleteCheckboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+    });
+});
