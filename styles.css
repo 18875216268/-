@@ -1,215 +1,165 @@
-// Firebase配置
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDk5p6EJAe02LEeqhQm1Z1dZxlIqGrRcUo",
-    authDomain: "asqrt-ed615.firebaseapp.com",
-    databaseURL: "https://asqrt-ed615-default-rtdb.firebaseio.com",
-    projectId: "asqrt-ed615",
-    storageBucket: "asqrt-ed615.appspot.com",
-    messagingSenderId: "131720495048",
-    appId: "1:131720495048:web:35f43929e31c1cc3428afd",
-    measurementId: "G-G7D5HRMF0E"
-};
-
-// 初始化Firebase
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-
-// 获取DOM元素
-const openModalBtn = document.getElementById('openModalBtn');
-const modal = document.getElementById('modal');
-const closeModalBtn = document.querySelector('.close');
-const inputData = document.getElementById('inputData');
-const tijiao = document.getElementById('tijiao');
-const siteList = document.getElementById('siteList');
-const deleteBtn = document.getElementById('deleteBtn');
-const checkLatencyBtn = document.getElementById('checkLatencyBtn');
-const selectAllContainer = document.getElementById('selectAllContainer');
-const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-
-// 打开弹窗
-openModalBtn.addEventListener('click', () => {
-    modal.style.display = 'block';
-});
-
-// 关闭弹窗
-closeModalBtn.addEventListener('click', () => {
-    modal.style.display = 'none';
-});
-
-// 提交数据并自动重新检测所有软件库
-tijiao.addEventListener('click', async () => {
-    const lines = inputData.value.split('\n'); // 按行分割输入内容
-    for (const line of lines) {
-        const [name, url] = line.split('|').map(item => item.trim()); // 分割名称和链接
-        if (name && url) {
-            const newSiteRef = ref(database, 'sites/' + Date.now());
-            const data = { name, url }; // 保存网站名称和URL，不存状态
-            await set(newSiteRef, data); // 写入Firebase数据库
-        }
-    }
-    alert('软件库已添加！');
-    inputData.value = '';
-    modal.style.display = 'none'; // 关闭弹窗
-    checkAllSitesLatency(); // 新增软件库后，自动检测所有软件库延迟
-});
-
-// 从Firebase获取网站列表并自动检测延迟
-onValue(ref(database, 'sites'), (snapshot) => {
-    siteList.innerHTML = ''; // 清空当前列表
-    let index = 1; // 序号从1开始
-    if (snapshot.exists()) {
-        snapshot.forEach((childSnapshot) => {
-            const site = childSnapshot.val();
-            const siteId = childSnapshot.key;
-
-            const li = document.createElement('li');
-            li.innerHTML = `
-                <span class="index">${index}.</span>
-                <input type="text" class="site-name" value="${site.name}" disabled />
-                <input type="text" class="site-url" value="${site.url}" disabled />
-                <span class="latency" id="latency-${siteId}">未检测</span> 
-                <button class="edit-btn" data-id="${siteId}">修改</button>
-                <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
-                <button class="delete-single-btn" data-id="${siteId}">删除</button>
-                <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none;" />
-            `;
-            siteList.appendChild(li);
-            index++; // 更新序号
-        });
-        checkAllSitesLatency(); // 获取列表后，自动检测所有软件库延迟
-    } else {
-        selectAllContainer.style.display = 'none'; // 如果没有站点，不显示全选容器
-    }
-    attachEventListeners(); // 绑定事件
-});
-
-// 绑定所有按钮的事件
-function attachEventListeners() {
-    const editBtns = document.querySelectorAll('.edit-btn');
-    const saveBtns = document.querySelectorAll('.save-btn');
-    const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
-
-    editBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const li = btn.parentElement;
-            li.querySelector('.site-name').removeAttribute('disabled');
-            li.querySelector('.site-url').removeAttribute('disabled');
-            btn.style.display = 'none';
-            const saveBtn = li.querySelector('.save-btn');
-            saveBtn.style.display = 'inline-block';
-            saveBtn.removeAttribute('disabled');
-        });
-    });
-
-    saveBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const li = btn.parentElement;
-            const siteId = btn.getAttribute('data-id');
-            const name = li.querySelector('.site-name').value;
-            const url = li.querySelector('.site-url').value;
-
-            if (name && url) {
-                set(ref(database, 'sites/' + siteId), { name, url })
-                    .then(() => {
-                        btn.style.display = 'none';
-                        li.querySelector('.edit-btn').style.display = 'inline-block';
-                        li.querySelector('.site-name').setAttribute('disabled', 'true');
-                        li.querySelector('.site-url').setAttribute('disabled', 'true');
-                    })
-                    .catch((error) => {
-                        console.error('更新网站信息时出错！', error);
-                    });
-            } else {
-                alert('请填写完整的网站名称和链接。');
-            }
-        });
-    });
-
-    checkLatencyBtn.addEventListener('click', () => {
-        checkAllSitesLatency(); // 手动点击“检测软件库”时，检测所有软件库延迟
-    });
-
-    document.querySelectorAll('.delete-single-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const siteId = btn.getAttribute('data-id');
-            deleteSite(siteId); // 调用删除函数
-        });
-    });
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
 }
 
-// 统一删除按钮事件
-deleteBtn.addEventListener('click', () => {
-    const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
-
-    if (deleteBtn.textContent === "批量删除库") {
-        // 显示复选框并显示全选复选框
-        deleteCheckboxes.forEach(checkbox => {
-            checkbox.style.display = 'inline-block';
-        });
-        selectAllCheckbox.style.display = 'inline-block'; // 显示全选复选框
-        deleteBtn.textContent = "确认删除库";
-    } else {
-        const selectedIds = Array.from(deleteCheckboxes)
-            .filter(checkbox => checkbox.checked)
-            .map(checkbox => checkbox.getAttribute('data-id'));
-
-        if (selectedIds.length > 0) {
-            selectedIds.forEach(siteId => {
-                deleteSite(siteId);
-            });
-            checkAllSitesLatency(); // 删除软件库后，自动检测剩余库的延迟
-        }
-        // 隐藏复选框和全选复选框
-        deleteCheckboxes.forEach(checkbox => {
-            checkbox.checked = false;
-            checkbox.style.display = 'none';
-        });
-        selectAllCheckbox.style.display = 'none'; // 隐藏全选复选框
-        deleteBtn.textContent = "批量删除库";
-    }
-});
-
-// 从Firebase删除特定的软件库
-function deleteSite(siteId) {
-    remove(ref(database, 'sites/' + siteId))
-        .then(() => {
-            console.log('软件库已删除');
-        })
-        .catch((error) => {
-            console.error('删除时出错:', error);
-        });
+.container {
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-// 检查URL延迟并返回延迟时间或异常
-async function checkURLLatency(url) {
-    const start = Date.now();
-    try {
-        await fetch(url, { method: 'HEAD', mode: 'no-cors' });
-        const latency = Date.now() - start;
-        return `${latency} ms`;
-    } catch (error) {
-        console.error('无法访问URL:', error);
-        return '异常';
-    }
+h1 {
+    text-align: center;
+    color: #333;
 }
 
-// 自动检测所有软件库的延迟
-async function checkAllSitesLatency() {
-    const statusElements = document.querySelectorAll('.latency'); // 获取所有状态显示元素
-    for (const element of statusElements) {
-        const url = element.previousElementSibling.value; // 获取对应的URL
-        const latency = await checkURLLatency(url); // 检测延迟
-        element.textContent = latency; // 更新延迟显示
-    }
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
 }
 
-// 绑定全选功能
-selectAllCheckbox.addEventListener('change', () => {
-    const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
-    deleteCheckboxes.forEach(checkbox => {
-        checkbox.checked = selectAllCheckbox.checked;
-    });
-});
+.btn {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    flex: 1; /* 使按钮均分宽度 */
+    margin: 0 10px; /* 按钮之间的间距 */
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+#tijiao {
+    display: block;              /* 设置为块级元素 */
+    width: fit-content;          /* 按钮宽度根据内容自动调整 */
+    margin: 10px auto;          /* 上下间距10px，左右自动居中 */
+    padding: 10px 15px;         /* 按钮内边距 */
+    background-color: #007bff;  /* 按钮背景色 */
+    color: white;                /* 按钮文字颜色 */
+    border: none;                /* 无边框 */
+    border-radius: 4px;         /* 圆角 */
+    cursor: pointer;             /* 鼠标悬停时显示为手型 */
+    transition: background-color 0.3s; /* 背景色过渡效果 */
+}
+
+#tijiao:hover {
+    background-color: #0056b3;  /* 悬停时改变背景色 */
+}
+
+
+.modal {
+    display: none; /* 默认隐藏弹窗 */
+    position: fixed;
+    z-index: 1; /* 使弹窗在其他内容之上 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* 启用滚动 */
+    background-color: rgba(0, 0, 0, 0.4); /* 背景透明 */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; /* 在页面中间，距离顶部有间距 */
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 8px; /* 圆角 */
+    max-width: 500px; /* 最大宽度 */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* 阴影效果 */
+}
+
+.close {
+    color: #aaa;
+    float: right; /* 右对齐 */
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black; /* 悬停时变黑 */
+    text-decoration: none;
+    cursor: pointer;
+}
+
+h2 {
+    text-align: center; /* 标题居中 */
+    color: #333;
+    margin-bottom: 15px; /* 标题与输入框之间的间距 */
+}
+
+textarea {
+    width: 100%; /* 宽度100%以适应弹窗 */
+    height: 100px; /* 固定高度 */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px; /* 底部间距 */
+    box-sizing: border-box; /* 确保内边距包含在宽度中 */
+}
+
+ul {
+    list-style-type: none; /* 无列表样式 */
+    padding: 0; /* 取消内边距 */
+}
+
+li {
+    display: flex;
+    justify-content: space-between; /* 横向排列 */
+    align-items: center; /* 垂直居中 */
+    margin: 10px 0; /* 间距 */
+    padding: 10px;
+    border-bottom: 1px solid #ddd; /* 底部边框 */
+}
+
+input[type="text"] {
+    flex: 1; /* 占满可用空间 */
+    margin: 0 10px; /* 间距 */
+    padding: 5px; /* 内边距 */
+    border: 1px solid #ccc; /* 边框 */
+    border-radius: 4px; /* 圆角 */
+}
+
+.edit-btn, delete-single-btn ,.save-btn {
+    margin-left: 10px; /* 按钮左侧间距 */
+    margin-right: 10px; /* 按钮右侧间距 */
+}
+
+/* 增大复选框 */
+.delete-checkbox {
+    width: 15px;
+    height: 15px;
+    margin-right: 10px;
+    margin-left: 10px; /* 增加左侧间距 */
+}
+
+/* 输入框样式调整 */
+.site-name, .site-url {
+    width: 40%;
+    margin-right: 10px;
+}
+
+.latency {
+    margin-left: 10px; /* 左侧间距 */
+    font-size: 0.9em; /* 字体大小 */
+    color: #666; /* 字体颜色 */
+}
+
+/* 全选复选框容器样式 */
+.select-all-container {
+    margin-bottom: 10px;
+    padding: 10px 0;
+}
