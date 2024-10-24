@@ -13,7 +13,7 @@
         <div class="button-container">
             <button id="openModalBtn" class="btn">添加软件库</button>
             <button id="deleteBtn" class="btn">批量删除库</button>
-            <button id="checkLatencyBtn" class="btn">检测软件库</button> <!-- 修改为检测软件库 -->
+            <button id="checkLatencyBtn" class="btn">检测软件库</button>
         </div>
 
         <!-- 弹窗 -->
@@ -27,7 +27,8 @@
         </div>
 
         <ul id="siteList">
-            <li>
+            <!-- 将全选框移动到每个软件库复选框上方 -->
+            <li id="selectAllRow" style="display:none;">
                 <input type="checkbox" id="selectAllCheckbox" />
                 <label for="selectAllCheckbox">全选</label>
             </li>
