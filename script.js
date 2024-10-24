@@ -26,6 +26,8 @@ const tijiao = document.getElementById('tijiao');
 const siteList = document.getElementById('siteList');
 const deleteBtn = document.getElementById('deleteBtn');
 const checkLatencyBtn = document.getElementById('checkLatencyBtn');
+const selectAllRow = document.getElementById('selectAllRow'); // 获取全选行
+const selectAllCheckbox = document.getElementById('selectAllCheckbox'); // 获取全选复选框
 
 // 打开弹窗
 openModalBtn.addEventListener('click', () => {
@@ -142,9 +144,11 @@ deleteBtn.addEventListener('click', () => {
     const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
 
     if (deleteBtn.textContent === "批量删除库") {
+        // 显示复选框并显示全选行
         deleteCheckboxes.forEach(checkbox => {
             checkbox.style.display = 'inline-block';
         });
+        selectAllRow.style.display = 'block'; // 显示全选复选框
         deleteBtn.textContent = "确认删除库";
     } else {
         const selectedIds = Array.from(deleteCheckboxes)
@@ -155,12 +159,14 @@ deleteBtn.addEventListener('click', () => {
             selectedIds.forEach(siteId => {
                 deleteSite(siteId);
             });
-        } 
+        }
+        // 隐藏复选框和全选行
         deleteCheckboxes.forEach(checkbox => {
             checkbox.checked = false;
             checkbox.style.display = 'none';
         });
-        deleteBtn.textContent = "批量删除库"; // 恢复删除按钮文本
+        selectAllRow.style.display = 'none'; // 隐藏全选复选框
+        deleteBtn.textContent = "批量删除库";
     }
 });
 
@@ -187,7 +193,6 @@ async function checkURLStatus(url) {
 }
 
 // 绑定全选功能
-const selectAllCheckbox = document.getElementById('selectAllCheckbox');
 selectAllCheckbox.addEventListener('change', () => {
     const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
     deleteCheckboxes.forEach(checkbox => {
