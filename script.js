@@ -26,8 +26,8 @@ const tijiao = document.getElementById('tijiao');
 const siteList = document.getElementById('siteList');
 const deleteBtn = document.getElementById('deleteBtn');
 const checkLatencyBtn = document.getElementById('checkLatencyBtn');
-const selectAllContainer = document.getElementById('selectAllContainer');
-const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+const selectAllBtn = document.getElementById('selectAllBtn'); // 获取全选按钮
+const selectAllCheckbox = document.getElementById('selectAllCheckbox'); // 获取全选复选框
 
 // 打开弹窗
 openModalBtn.addEventListener('click', () => {
@@ -80,8 +80,6 @@ onValue(ref(database, 'sites'), (snapshot) => {
             index++; // 更新序号
         });
         checkAllSitesLatency(); // 获取列表后，自动检测所有软件库延迟
-    } else {
-        selectAllContainer.style.display = 'none'; // 如果没有站点，不显示全选容器
     }
     attachEventListeners(); // 绑定事件
 });
