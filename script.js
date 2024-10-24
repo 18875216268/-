@@ -25,7 +25,6 @@ const inputData = document.getElementById('inputData');
 const tijiao = document.getElementById('tijiao');
 const siteList = document.getElementById('siteList');
 const deleteBtn = document.getElementById('deleteBtn');
-const checkLatencyBtn = document.getElementById('checkLatencyBtn');
 const selectAllContainer = document.getElementById('selectAllContainer');
 const selectAllCheckbox = document.getElementById('selectAllCheckbox');
 
@@ -182,45 +181,42 @@ function deleteSite(siteId) {
 // 检测所有软件库有效性
 function checkAllSites() {
     const latencyElements = document.querySelectorAll('.latency');
+    const normalKeywords = ['网盘', '云盘', '云', '盘'];  // 正常关键字
+    const errorKeywords = ['失效', '不存在', '找不到', '无法', '丢失', '取消'];  // 异常关键字
     latencyElements.forEach(element => {
         const url = element.previousElementSibling.value; // 获取对应的URL
-        checkSingleSite(url, element.id);
+        checkSingleSite(url, element.id, normalKeywords, errorKeywords);
     });
 }
 
-// 单个软件库检测（使用两种方法检测有效性）
-async function checkSingleSite(url, elementId) {
+// 单个软件库检测（通过关键字匹配检测）
+async function checkSingleSite(url, elementId, normalKeywords, errorKeywords) {
     const element = document.getElementById(elementId);
-    let result = await fetchBasicCheck(url);  // 使用 fetch 基本检测
-    if (result === '异常') {
-        result = await checkURLViaProxy(url);  // 如果异常，使用 CORS 代理检测
-    }
+    let result = await checkURLViaProxy(url, normalKeywords, errorKeywords);  // 使用 CORS 代理检测
     element.textContent = result;
 }
 
-// 使用基本的 fetch 检测方法
-async function fetchBasicCheck(url) {
-    try {
-        const response = await fetch(url, { method: 'HEAD' });
-        if (response.ok) {
-            return '正常';  // HTTP 状态码 200
-        } else {
-            return '异常';  // 其他非 2xx 状态码
-        }
-    } catch (error) {
-        console.error('fetch 检测失败:', error);
-        return '异常';  // 捕获错误，返回异常
-    }
-}
-
-// 使用 CORS 代理检测
-async function checkURLViaProxy(url) {
+// 使用 CORS 代理检测网页内容
+async function checkURLViaProxy(url, normalKeywords, errorKeywords) {
     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
     try {
         const response = await fetch(proxyUrl);
         if (response.ok) {
             const data = await response.json();
-            return data.contents.includes('200 OK') ? '正常' : '异常';  // 解析状态码
+            const content = data.contents;
+
+            // 先检测是否有正常关键字
+            if (normalKeywords.some(keyword => content.includes(keyword))) {
+                return '正常';
+            }
+
+            // 如果没有正常关键字，检测是否有异常关键字
+            if (errorKeywords.some(keyword => content.includes(keyword))) {
+                return '异常';
+            }
+
+            // 没有异常关键字，返回正常
+            return '正常';
         } else {
             return '异常';
         }
