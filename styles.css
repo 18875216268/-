@@ -161,4 +161,5 @@ input[type="text"] {
 /* 全选复选框样式 */
 #selectAllRow {
     margin-bottom: 10px;
+    display: none; /* 初始状态为隐藏，点击删除时才显示 */
 }
