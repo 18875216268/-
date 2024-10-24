@@ -26,8 +26,11 @@ const tijiao = document.getElementById('tijiao');
 const siteList = document.getElementById('siteList');
 const deleteBtn = document.getElementById('deleteBtn');
 const checkLatencyBtn = document.getElementById('checkLatencyBtn');
-const selectAllContainer = document.getElementById('selectAllContainer'); // 获取全选容器
-const selectAllCheckbox = document.getElementById('selectAllCheckbox'); // 获取全选复选框
+const selectAllContainer = document.getElementById('selectAllContainer');
+const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+
+// updown.io API密钥
+const apiKey = 'ro-Z891YpAYumD5T7KiB4oY'; 
 
 // 打开弹窗
 openModalBtn.addEventListener('click', () => {
@@ -46,10 +49,7 @@ tijiao.addEventListener('click', async () => {
         const [name, url] = line.split('|').map(item => item.trim()); // 分割名称和链接
         if (name && url) {
             const newSiteRef = ref(database, 'sites/' + Date.now());
-            
-            const status = await checkURLStatus(url); // 检查URL状态
-            const data = { name, url, status: status || 'N/A' }; // 保存状态或'N/A'
-            
+            const data = { name, url, status: 'N/A' }; // 状态默认设置为N/A
             await set(newSiteRef, data); // 写入Firebase数据库
         }
     }
@@ -72,7 +72,7 @@ onValue(ref(database, 'sites'), (snapshot) => {
             li.innerHTML = `
                 <input type="text" class="site-name" value="${site.name}" disabled />
                 <input type="text" class="site-url" value="${site.url}" disabled />
-                <span class="latency">${site.status || 'N/A'}</span> 
+                <span class="latency" id="latency-${siteId}">${site.status || 'N/A'}</span> 
                 <button class="edit-btn" data-id="${siteId}">修改</button>
                 <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
                 <button class="delete-single-btn" data-id="${siteId}">删除</button>
@@ -130,11 +130,9 @@ function attachEventListeners() {
 
     checkLatencyBtn.addEventListener('click', async () => {
         const statusElements = document.querySelectorAll('.latency'); // 获取所有状态显示元素
-        for (const element of statusElements) {
-            const url = element.previousElementSibling.value; // 获取对应的URL
-            const status = await checkURLStatus(url); // 检测状态
-            element.textContent = status; // 更新显示为“正常”或“异常”
-        }
+        const siteUrls = Array.from(document.querySelectorAll('.site-url')).map(input => input.value);
+        const statusData = await checkSitesStatus(siteUrls); // 调用检测 API
+        updateSiteStatus(statusElements, statusData); // 更新页面状态显示
     });
 
     document.querySelectorAll('.delete-single-btn').forEach(btn => {
@@ -187,15 +185,30 @@ function deleteSite(siteId) {
         });
 }
 
-// 检查URL是否可访问并返回状态
-async function checkURLStatus(url) {
+// 调用updown.io的API获取网站状态
+async function checkSitesStatus(urls) {
     try {
-        const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
-        return response.ok ? '正常' : '异常';
+        const response = await fetch(`https://updown.io/api/checks?api-key=${apiKey}`);
+        const data = await response.json();
+        return data;
     } catch (error) {
-        console.error('无法访问URL:', error);
-        return '异常';
+        console.error('无法获取网站状态:', error);
+        return [];
     }
+}
+
+// 更新页面上网站的状态
+function updateSiteStatus(statusElements, statusData) {
+    statusElements.forEach((element, index) => {
+        const siteUrl = element.previousElementSibling.value;
+        const siteStatus = statusData.find(site => site.url === siteUrl);
+
+        if (siteStatus && siteStatus.status === 'up') {
+            element.textContent = '正常';
+        } else {
+            element.textContent = '异常';
+        }
+    });
 }
 
 // 绑定全选功能
