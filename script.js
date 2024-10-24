@@ -148,7 +148,7 @@ deleteBtn.addEventListener('click', () => {
         deleteCheckboxes.forEach(checkbox => {
             checkbox.style.display = 'inline-block';
         });
-        selectAllRow.style.display = 'block'; // 显示全选复选框
+        selectAllRow.style.display = 'block'; // 显示全选复选框行
         deleteBtn.textContent = "确认删除库";
     } else {
         const selectedIds = Array.from(deleteCheckboxes)
@@ -165,7 +165,7 @@ deleteBtn.addEventListener('click', () => {
             checkbox.checked = false;
             checkbox.style.display = 'none';
         });
-        selectAllRow.style.display = 'none'; // 隐藏全选复选框
+        selectAllRow.style.display = 'none'; // 隐藏全选复选框行
         deleteBtn.textContent = "批量删除库";
     }
 });
