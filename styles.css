@@ -157,3 +157,8 @@ input[type="text"] {
     font-size: 0.9em; /* 字体大小 */
     color: #666; /* 字体颜色 */
 }
+
+/* 全选复选框样式 */
+#selectAllRow {
+    margin-bottom: 10px;
+}
