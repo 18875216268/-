@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="styles.css">
     <script type="module" src="script.js" defer></script>
 </head>
+
 <body>
     <div class="container">
         <h1>管理软件库</h1>
@@ -27,8 +29,21 @@
             </div>
         </div>
 
-        <!-- 软件库列表 -->
-        <ul id="siteList"></ul>
+        <!-- 可滚动的软件库列表部分 -->
+        <div class="list-container">
+            <!-- 标题行 -->
+            <div class="list-header">
+                <span class="xuhap">序号</span>
+                <span class="mingcheng">软件库名称</span>
+                <span class="lianjie">软件库链接</span>
+                <span class="yan-chi">延迟</span>
+                <span class="caozuo">状态/操作</span>
+            </div>
+
+            <!-- 软件库列表 -->
+            <ul id="siteList"></ul>
+        </div>
     </div>
 </body>
+
 </html>
