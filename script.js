@@ -26,7 +26,7 @@ const tijiao = document.getElementById('tijiao');
 const siteList = document.getElementById('siteList');
 const deleteBtn = document.getElementById('deleteBtn');
 const checkLatencyBtn = document.getElementById('checkLatencyBtn');
-const selectAllRow = document.getElementById('selectAllRow'); // 获取全选行
+const selectAllContainer = document.getElementById('selectAllContainer'); // 获取全选容器
 const selectAllCheckbox = document.getElementById('selectAllCheckbox'); // 获取全选复选框
 
 // 打开弹窗
@@ -64,9 +64,6 @@ onValue(ref(database, 'sites'), (snapshot) => {
 
     // 检查是否有可显示的站点
     if (snapshot.exists()) {
-        selectAllRow.style.display = 'none'; // 默认隐藏全选复选框行
-
-        // 每次加载时，重建复选框行及内容
         snapshot.forEach((childSnapshot) => {
             const site = childSnapshot.val();
             const siteId = childSnapshot.key;
@@ -84,7 +81,7 @@ onValue(ref(database, 'sites'), (snapshot) => {
             siteList.appendChild(li);
         });
     } else {
-        selectAllRow.style.display = 'none'; // 如果没有站点，不显示全选框
+        selectAllContainer.style.display = 'none'; // 如果没有站点，不显示全选容器
     }
     attachEventListeners(); // 绑定事件
 });
@@ -153,11 +150,11 @@ deleteBtn.addEventListener('click', () => {
     const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
 
     if (deleteBtn.textContent === "批量删除库") {
-        // 显示复选框并显示全选行
+        // 显示复选框并显示全选容器
         deleteCheckboxes.forEach(checkbox => {
             checkbox.style.display = 'inline-block';
         });
-        selectAllRow.style.display = 'block'; // 显示全选复选框行
+        selectAllContainer.style.display = 'block'; // 显示全选复选框行
         deleteBtn.textContent = "确认删除库";
     } else {
         const selectedIds = Array.from(deleteCheckboxes)
@@ -169,12 +166,12 @@ deleteBtn.addEventListener('click', () => {
                 deleteSite(siteId);
             });
         }
-        // 隐藏复选框和全选行
+        // 隐藏复选框和全选容器
         deleteCheckboxes.forEach(checkbox => {
             checkbox.checked = false;
             checkbox.style.display = 'none';
         });
-        selectAllRow.style.display = 'none'; // 隐藏全选复选框行
+        selectAllContainer.style.display = 'none'; // 隐藏全选复选框行
         deleteBtn.textContent = "批量删除库";
     }
 });
