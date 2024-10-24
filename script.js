@@ -61,22 +61,31 @@ tijiao.addEventListener('click', async () => {
 // 从Firebase获取网站列表
 onValue(ref(database, 'sites'), (snapshot) => {
     siteList.innerHTML = ''; // 清空当前列表
-    snapshot.forEach((childSnapshot) => {
-        const site = childSnapshot.val();
-        const siteId = childSnapshot.key;
 
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <input type="text" class="site-name" value="${site.name}" disabled />
-            <input type="text" class="site-url" value="${site.url}" disabled />
-            <span class="latency">${site.status || 'N/A'}</span> 
-            <button class="edit-btn" data-id="${siteId}">修改</button>
-            <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
-            <button class="delete-single-btn" data-id="${siteId}">删除</button>
-            <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none;" />
-        `;
-        siteList.appendChild(li);
-    });
+    // 检查是否有可显示的站点
+    if (snapshot.exists()) {
+        selectAllRow.style.display = 'none'; // 默认隐藏全选复选框行
+
+        // 每次加载时，重建复选框行及内容
+        snapshot.forEach((childSnapshot) => {
+            const site = childSnapshot.val();
+            const siteId = childSnapshot.key;
+
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <input type="text" class="site-name" value="${site.name}" disabled />
+                <input type="text" class="site-url" value="${site.url}" disabled />
+                <span class="latency">${site.status || 'N/A'}</span> 
+                <button class="edit-btn" data-id="${siteId}">修改</button>
+                <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
+                <button class="delete-single-btn" data-id="${siteId}">删除</button>
+                <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none;" />
+            `;
+            siteList.appendChild(li);
+        });
+    } else {
+        selectAllRow.style.display = 'none'; // 如果没有站点，不显示全选框
+    }
     attachEventListeners(); // 绑定事件
 });
 
