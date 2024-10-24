@@ -25,6 +25,7 @@ const inputData = document.getElementById('inputData');
 const tijiao = document.getElementById('tijiao');
 const siteList = document.getElementById('siteList');
 const deleteBtn = document.getElementById('deleteBtn');
+const checkLatencyBtn = document.getElementById('checkLatencyBtn'); // 检测按钮
 
 // 打开弹窗
 openModalBtn.addEventListener('click', () => {
@@ -36,7 +37,21 @@ closeModalBtn.addEventListener('click', () => {
     modal.style.display = 'none';
 });
 
-// 提交数据
+// 检测网站是否可访问
+async function checkWebsiteStatus(url) {
+    try {
+        const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+        if (response.ok) {
+            return "正常";  // HTTP 200表示正常
+        } else {
+            return "异常";  // 其他状态码表示异常
+        }
+    } catch (error) {
+        return "异常";  // 捕获到错误也认为是异常
+    }
+}
+
+// 提交数据时，检测网站状态并保存到数据库
 tijiao.addEventListener('click', async () => {
     const lines = inputData.value.split('\n'); // 按行分割输入内容
     for (const line of lines) {
@@ -50,12 +65,12 @@ tijiao.addEventListener('click', async () => {
             await set(newSiteRef, data); // 写入Firebase数据库
         }
     }
-    alert('软件库已添加！');
+    alert('软件库已添加并检测完成！');
     inputData.value = '';
     modal.style.display = 'none'; // 关闭弹窗
 });
 
-// 从Firebase获取网站列表
+// 从Firebase获取网站列表并显示状态
 onValue(ref(database, 'sites'), (snapshot) => {
     siteList.innerHTML = ''; // 清空当前列表
     snapshot.forEach((childSnapshot) => {
@@ -66,7 +81,7 @@ onValue(ref(database, 'sites'), (snapshot) => {
         li.innerHTML = `
             <input type="text" class="site-name" value="${site.name}" disabled />
             <input type="text" class="site-url" value="${site.url}" disabled />
-            <span class="latency">${site.latency || 'N/A'} ms</span> <!-- 只显示数值和单位 -->
+            <span class="status">${site.status || '未知'}</span> <!-- 显示检测状态 -->
             <button class="edit-btn" data-id="${siteId}">修改</button>
             <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
             <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none; transform: scale(1.5);" />
@@ -76,37 +91,11 @@ onValue(ref(database, 'sites'), (snapshot) => {
     attachEventListeners(); // 绑定事件
 });
 
-// 添加全选功能
-document.getElementById('siteList').addEventListener('change', (event) => {
-    if (event.target.id === 'selectAllCheckbox') {
-        const checkboxes = document.querySelectorAll('.delete-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = event.target.checked;
-        });
-    }
-});
-
-// 单独删除按钮的事件
-siteList.addEventListener('click', (event) => {
-    if (event.target.classList.contains('delete-single-btn')) {
-        const siteId = event.target.getAttribute('data-id');
-        remove(ref(database, 'sites/' + siteId))
-            .then(() => {
-                console.log('网站已删除');
-            })
-            .catch((error) => {
-                console.error('删除网站时出错：', error);
-            });
-    }
-});
-
-// 绑定所有按钮的事件
 // 绑定所有按钮的事件
 function attachEventListeners() {
     const editBtns = document.querySelectorAll('.edit-btn');
     const saveBtns = document.querySelectorAll('.save-btn');
     const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
-    const checkLatencyBtn = document.getElementById('checkLatencyBtn'); // 获取检测延迟按钮
 
     saveBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -132,6 +121,23 @@ function attachEventListeners() {
         });
     });
 }
+
+// 检测所有网站的状态
+checkLatencyBtn.addEventListener('click', async () => {
+    const siteElements = document.querySelectorAll('.site-url'); // 获取所有网站URL
+    for (const siteElement of siteElements) {
+        const li = siteElement.parentElement;
+        const siteId = li.querySelector('.save-btn').getAttribute('data-id');
+        const url = siteElement.value;
+
+        const status = await checkWebsiteStatus(url); // 检测网站是否正常访问
+        li.querySelector('.status').textContent = status; // 更新显示状态
+
+        // 更新数据库中的状态
+        const name = li.querySelector('.site-name').value;
+        await set(ref(database, 'sites/' + siteId), { name, url, status });
+    }
+});
 
 // 统一删除按钮事件
 deleteBtn.addEventListener('click', () => {
@@ -166,12 +172,12 @@ deleteBtn.addEventListener('click', () => {
     }
 });
 
- //检测所有网站延迟
- checkLatencyBtn.addEventListener('click', async () => {
-        const latencyElements = document.querySelectorAll('.latency'); // 获取所有延迟显示元素
-        for (const element of latencyElements) {
-            const url = element.previousElementSibling.value; // 获取对应的URL
-            const latency = await checkURLLatency(url); // 检测延迟
-            element.textContent = `${latency !== null ? latency + ' ms' : '无法访问'}`; // 更新显示延迟数值和单位
-        }
-    });
+// 添加全选功能
+document.getElementById('siteList').addEventListener('change', (event) => {
+    if (event.target.id === 'selectAllCheckbox') {
+        const checkboxes = document.querySelectorAll('.delete-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = event.target.checked;
+        });
+    }
+});
