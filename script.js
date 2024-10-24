@@ -1,6 +1,6 @@
 // Firebase配置
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDk5p6EJAe02LEeqhQm1Z1dZxlIqGrRcUo",
@@ -26,8 +26,8 @@ const tijiao = document.getElementById('tijiao');
 const siteList = document.getElementById('siteList');
 const deleteBtn = document.getElementById('deleteBtn');
 const checkLatencyBtn = document.getElementById('checkLatencyBtn');
-const selectAllContainer = document.getElementById('selectAllContainer'); // 获取全选容器
-const selectAllCheckbox = document.getElementById('selectAllCheckbox'); // 获取全选复选框
+const selectAllContainer = document.getElementById('selectAllContainer');
+const selectAllCheckbox = document.getElementById('selectAllCheckbox');
 
 // 打开弹窗
 openModalBtn.addEventListener('click', () => {
@@ -39,18 +39,14 @@ closeModalBtn.addEventListener('click', () => {
     modal.style.display = 'none';
 });
 
-// 提交数据
+// 提交软件库数据
 tijiao.addEventListener('click', async () => {
     const lines = inputData.value.split('\n'); // 按行分割输入内容
     for (const line of lines) {
         const [name, url] = line.split('|').map(item => item.trim()); // 分割名称和链接
         if (name && url) {
             const newSiteRef = ref(database, 'sites/' + Date.now());
-            
-            const status = await checkURLStatus(url); // 检查URL状态
-            const data = { name, url, status: status || 'N/A' }; // 保存状态或'N/A'
-            
-            await set(newSiteRef, data); // 写入Firebase数据库
+            await set(newSiteRef, { name, url }); // 写入数据库
         }
     }
     alert('软件库已添加！');
@@ -58,11 +54,15 @@ tijiao.addEventListener('click', async () => {
     modal.style.display = 'none'; // 关闭弹窗
 });
 
-// 从Firebase获取网站列表
+// 页面加载时自动检测所有软件库有效性
+window.addEventListener('load', () => {
+    checkAllSites();  // 页面加载时自动检测
+});
+
+// 从Firebase获取网站列表并检测有效性
 onValue(ref(database, 'sites'), (snapshot) => {
     siteList.innerHTML = ''; // 清空当前列表
 
-    // 检查是否有可显示的站点
     if (snapshot.exists()) {
         snapshot.forEach((childSnapshot) => {
             const site = childSnapshot.val();
@@ -72,16 +72,19 @@ onValue(ref(database, 'sites'), (snapshot) => {
             li.innerHTML = `
                 <input type="text" class="site-name" value="${site.name}" disabled />
                 <input type="text" class="site-url" value="${site.url}" disabled />
-                <span class="latency">${site.status || 'N/A'}</span> 
+                <span class="latency" id="latency-${siteId}">检测中...</span> 
                 <button class="edit-btn" data-id="${siteId}">修改</button>
                 <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
                 <button class="delete-single-btn" data-id="${siteId}">删除</button>
                 <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none;" />
             `;
             siteList.appendChild(li);
+
+            // 调用检测函数，检测每个软件库
+            checkSingleSite(site.url, `latency-${siteId}`);
         });
     } else {
-        selectAllContainer.style.display = 'none'; // 如果没有站点，不显示全选容器
+        selectAllContainer.style.display = 'none'; // 没有软件库时隐藏全选
     }
     attachEventListeners(); // 绑定事件
 });
@@ -128,15 +131,6 @@ function attachEventListeners() {
         });
     });
 
-    checkLatencyBtn.addEventListener('click', async () => {
-        const statusElements = document.querySelectorAll('.latency'); // 获取所有状态显示元素
-        for (const element of statusElements) {
-            const url = element.previousElementSibling.value; // 获取对应的URL
-            const status = await checkURLStatus(url); // 检测状态
-            element.textContent = status; // 更新显示为“正常”或“异常”
-        }
-    });
-
     document.querySelectorAll('.delete-single-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const siteId = btn.getAttribute('data-id');
@@ -150,7 +144,6 @@ deleteBtn.addEventListener('click', () => {
     const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
 
     if (deleteBtn.textContent === "批量删除库") {
-        // 显示复选框并显示全选容器
         deleteCheckboxes.forEach(checkbox => {
             checkbox.style.display = 'inline-block';
         });
@@ -166,7 +159,6 @@ deleteBtn.addEventListener('click', () => {
                 deleteSite(siteId);
             });
         }
-        // 隐藏复选框和全选容器
         deleteCheckboxes.forEach(checkbox => {
             checkbox.checked = false;
             checkbox.style.display = 'none';
@@ -183,17 +175,57 @@ function deleteSite(siteId) {
             console.log('软件库已删除');
         })
         .catch((error) => {
-            console.error('删除时出错:', error);
+            console.error('删除时出错：', error);
         });
 }
 
-// 检查URL是否可访问并返回状态
-async function checkURLStatus(url) {
+// 检测所有软件库有效性
+function checkAllSites() {
+    const latencyElements = document.querySelectorAll('.latency');
+    latencyElements.forEach(element => {
+        const url = element.previousElementSibling.value; // 获取对应的URL
+        checkSingleSite(url, element.id);
+    });
+}
+
+// 单个软件库检测（使用两种方法检测有效性）
+async function checkSingleSite(url, elementId) {
+    const element = document.getElementById(elementId);
+    let result = await fetchBasicCheck(url);  // 使用 fetch 基本检测
+    if (result === '异常') {
+        result = await checkURLViaProxy(url);  // 如果异常，使用 CORS 代理检测
+    }
+    element.textContent = result;
+}
+
+// 使用基本的 fetch 检测方法
+async function fetchBasicCheck(url) {
     try {
-        const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
-        return response.ok ? '正常' : '异常';
+        const response = await fetch(url, { method: 'HEAD' });
+        if (response.ok) {
+            return '正常';  // HTTP 状态码 200
+        } else {
+            return '异常';  // 其他非 2xx 状态码
+        }
     } catch (error) {
-        console.error('无法访问URL:', error);
+        console.error('fetch 检测失败:', error);
+        return '异常';  // 捕获错误，返回异常
+    }
+}
+
+// 使用 CORS 代理检测
+async function checkURLViaProxy(url) {
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    try {
+        const response = await fetch(proxyUrl);
+        if (response.ok) {
+            const data = await response.json();
+            return data.contents.includes('200 OK') ? '正常' : '异常';  // 解析状态码
+        } else {
+            return '异常';
+        }
+    } catch (error) {
+        console.error('CORS 代理检测失败:', error);
         return '异常';
     }
 }
