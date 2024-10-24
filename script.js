@@ -25,6 +25,7 @@ const inputData = document.getElementById('inputData');
 const tijiao = document.getElementById('tijiao');
 const siteList = document.getElementById('siteList');
 const deleteBtn = document.getElementById('deleteBtn');
+const checkLatencyBtn = document.getElementById('checkLatencyBtn'); // 新增获取“检测软件库”按钮
 const selectAllContainer = document.getElementById('selectAllContainer');
 const selectAllCheckbox = document.getElementById('selectAllCheckbox');
 
@@ -56,6 +57,11 @@ tijiao.addEventListener('click', async () => {
 // 页面加载时自动检测所有软件库有效性
 window.addEventListener('load', () => {
     checkAllSites();  // 页面加载时自动检测
+});
+
+// 点击“检测软件库”按钮时手动检测所有软件库
+checkLatencyBtn.addEventListener('click', () => {
+    checkAllSites();  // 用户点击时手动检测
 });
 
 // 从Firebase获取网站列表并检测有效性
