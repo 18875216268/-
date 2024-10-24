@@ -1,0 +1,171 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+/* 已包含在你的 CSS 中的 .btn 样式 */
+.btn {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    flex: 1; /* 使按钮均分宽度 */
+    margin: 0 10px; /* 按钮之间的间距 */
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+#tijiao {
+    display: block;              /* 设置为块级元素 */
+    width: fit-content;          /* 按钮宽度根据内容自动调整 */
+    margin: 10px auto;          /* 上下间距10px，左右自动居中 */
+    padding: 10px 15px;         /* 按钮内边距 */
+    background-color: #007bff;  /* 按钮背景色 */
+    color: white;                /* 按钮文字颜色 */
+    border: none;                /* 无边框 */
+    border-radius: 4px;         /* 圆角 */
+    cursor: pointer;             /* 鼠标悬停时显示为手型 */
+    transition: background-color 0.3s; /* 背景色过渡效果 */
+}
+
+#tijiao:hover {
+    background-color: #0056b3;  /* 悬停时改变背景色 */
+}
+
+
+.modal {
+    display: none; /* 默认隐藏弹窗 */
+    position: fixed;
+    z-index: 1; /* 使弹窗在其他内容之上 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* 启用滚动 */
+    background-color: rgba(0, 0, 0, 0.4); /* 背景透明 */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; /* 在页面中间，距离顶部有间距 */
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 8px; /* 圆角 */
+    max-width: 500px; /* 最大宽度 */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* 阴影效果 */
+}
+
+.close {
+    color: #aaa;
+    float: right; /* 右对齐 */
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black; /* 悬停时变黑 */
+    text-decoration: none;
+    cursor: pointer;
+}
+
+h2 {
+    text-align: center; /* 标题居中 */
+    color: #333;
+    margin-bottom: 15px; /* 标题与输入框之间的间距 */
+}
+
+textarea {
+    width: 100%; /* 宽度100%以适应弹窗 */
+    height: 100px; /* 固定高度 */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px; /* 底部间距 */
+    box-sizing: border-box; /* 确保内边距包含在宽度中 */
+}
+
+ul {
+    list-style-type: none; /* 无列表样式 */
+    padding: 0; /* 取消内边距 */
+}
+
+li {
+    display: flex;
+    justify-content: space-between; /* 横向排列 */
+    align-items: center; /* 垂直居中 */
+    margin: 10px 0; /* 间距 */
+    padding: 10px;
+    border-bottom: 1px solid #ddd; /* 底部边框 */
+}
+
+input[type="text"] {
+    flex: 1; /* 占满可用空间 */
+    margin: 0 10px; /* 间距 */
+    padding: 5px; /* 内边距 */
+    border: 1px solid #ccc; /* 边框 */
+    border-radius: 4px; /* 圆角 */
+}
+
+.edit-btn, delete-single-btn ,.save-btn {
+    margin-left: 10px; /* 按钮左侧间距 */
+    margin-right: 10px; /* 按钮右侧间距 */
+}
+
+/* 增大复选框 */
+.delete-checkbox {
+    width: 15px;
+    height: 15px;
+    margin-right: 10px;
+    margin-left: 10px; /* 增加左侧间距 */
+}
+
+/* 输入框样式调整 */
+.site-name, .site-url {
+    width: 40%;
+    margin-right: 10px;
+}
+
+.latency {
+    margin-left: 10px; /* 左侧间距 */
+    font-size: 0.9em; /* 字体大小 */
+    color: #666; /* 字体颜色 */
+}
+
+/* 全选复选框容器样式 */
+.select-all-container {
+    margin-bottom: 10px;
+    padding: 10px 0;
+}
+
+.site-index {
+    margin-right: 10px; /* 给序号和软件库名之间留出空间 */
+    color: #545454; /* 设置默认颜色，可以根据需要更改 */
+}
