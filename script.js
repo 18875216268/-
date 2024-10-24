@@ -185,6 +185,26 @@ function deleteSite(siteId) {
         });
 }
 
+let index = 1; // 初始化编号
+
+snapshot.forEach((childSnapshot) => {
+    const site = childSnapshot.val();
+    const siteId = childSnapshot.key;
+
+    const li = document.createElement('li');
+    li.innerHTML = `
+        <span class="site-index">${index++}</span> <!-- 自动编号 -->
+        <input type="text" class="site-name" value="${site.name}" disabled />
+        <input type="text" class="site-url" value="${site.url}" disabled />
+        <span class="latency" id="latency-${siteId}">未检测</span> 
+        <button class="edit-btn" data-id="${siteId}">修改</button>
+        <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
+        <button class="delete-single-btn" data-id="${siteId}">删除</button>
+        <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none;" />
+    `;
+    siteList.appendChild(li);
+});
+
 // 检查URL延迟并返回延迟时间或异常
 async function checkURLLatency(url) {
     const start = Date.now();
