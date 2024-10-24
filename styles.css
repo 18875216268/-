@@ -6,7 +6,7 @@ body {
 }
 
 .container {
-    max-width: 600px;
+    max-width: 800px; /* 扩展宽度以适应合理间隔 */
     margin: auto;
     background: white;
     padding: 20px;
@@ -15,50 +15,48 @@ body {
 }
 
 h1 {
-    text-align: center;
+    text-align: center; /* 标题居中 */
     color: #333;
 }
 
 .button-container {
-    display: flex;
-    justify-content: space-between;
+    display: flex; /* 按钮布局 */
+    justify-content: space-between; /* 按钮在容器内均匀分布 */
     margin-bottom: 20px;
 }
 
-/* 已包含在你的 CSS 中的 .btn 样式 */
 .btn {
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    flex: 1; /* 使按钮均分宽度 */
+    padding: 10px 15px; /* 按钮的内边距 */
+    background-color: #007bff; /* 按钮的背景颜色 */
+    color: white; /* 按钮文字颜色 */
+    border: none; /* 去掉按钮边框 */
+    border-radius: 4px; /* 按钮边角圆滑 */
+    cursor: pointer; /* 鼠标悬停时显示手型 */
+    transition: background-color 0.3s; /* 按钮颜色的过渡效果 */
+    flex: 1; /* 每个按钮占据相同的宽度 */
     margin: 0 10px; /* 按钮之间的间距 */
 }
 
 .btn:hover {
-    background-color: #0056b3;
+    background-color: #0056b3; /* 鼠标悬停时按钮变色 */
 }
 
 #tijiao {
-    display: block;              /* 设置为块级元素 */
-    width: fit-content;          /* 按钮宽度根据内容自动调整 */
-    margin: 10px auto;          /* 上下间距10px，左右自动居中 */
-    padding: 10px 15px;         /* 按钮内边距 */
-    background-color: #007bff;  /* 按钮背景色 */
-    color: white;                /* 按钮文字颜色 */
-    border: none;                /* 无边框 */
-    border-radius: 4px;         /* 圆角 */
-    cursor: pointer;             /* 鼠标悬停时显示为手型 */
-    transition: background-color 0.3s; /* 背景色过渡效果 */
+    display: block; /* 弹窗的提交按钮显示为块状元素 */
+    width: fit-content; /* 按钮宽度根据内容自动调整 */
+    margin: 10px auto; /* 按钮上下间距为 10px，水平居中 */
+    padding: 10px 15px; /* 按钮内边距 */
+    background-color: #007bff; /* 按钮背景色 */
+    color: white; /* 按钮文字颜色 */
+    border: none; /* 无边框 */
+    border-radius: 4px; /* 圆角边框 */
+    cursor: pointer; /* 鼠标变为手型 */
+    transition: background-color 0.3s; /* 背景色变换平滑过渡 */
 }
 
 #tijiao:hover {
-    background-color: #0056b3;  /* 悬停时改变背景色 */
+    background-color: #0056b3; /* 鼠标悬停时改变背景色 */
 }
-
 
 .modal {
     display: none; /* 默认隐藏弹窗 */
@@ -68,15 +66,15 @@ h1 {
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto; /* 启用滚动 */
+    overflow: auto; /* 启用滚动条 */
     background-color: rgba(0, 0, 0, 0.4); /* 背景透明 */
 }
 
 .modal-content {
-    background-color: #fefefe;
+    background-color: #fefefe; /* 弹窗内容背景色 */
     margin: 5% auto; /* 在页面中间，距离顶部有间距 */
     padding: 20px;
-    border: 1px solid #888;
+    border: 1px solid #888; /* 边框颜色 */
     border-radius: 8px; /* 圆角 */
     max-width: 500px; /* 最大宽度 */
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* 阴影效果 */
@@ -92,7 +90,7 @@ h1 {
 .close:hover,
 .close:focus {
     color: black; /* 悬停时变黑 */
-    text-decoration: none;
+    text-decoration: none; /* 无下划线 */
     cursor: pointer;
 }
 
@@ -103,69 +101,82 @@ h2 {
 }
 
 textarea {
-    width: 100%; /* 宽度100%以适应弹窗 */
+    width: 100%; /* 宽度 100% 适应父容器 */
     height: 100px; /* 固定高度 */
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #ccc; /* 边框颜色 */
     border-radius: 4px;
     margin-bottom: 10px; /* 底部间距 */
-    box-sizing: border-box; /* 确保内边距包含在宽度中 */
+    box-sizing: border-box; /* 内边距和边框包含在宽度中 */
 }
 
 ul {
-    list-style-type: none; /* 无列表样式 */
-    padding: 0; /* 取消内边距 */
+    list-style-type: none; /* 无列表项符号 */
+    padding: 0; /* 取消默认内边距 */
 }
 
+/* 软件库列表的每一项 */
 li {
-    display: flex;
-    justify-content: space-between; /* 横向排列 */
-    align-items: center; /* 垂直居中 */
-    margin: 10px 0; /* 间距 */
+    display: grid; /* 使用网格布局来保证元素对齐 */
+    grid-template-columns: 50px 1fr 1fr 100px 80px 80px 40px; /* 添加一个列来预留复选框的位置 */
+    align-items: center; /* 保证每个元素垂直方向上居中 */
+    gap: 20px; /* 设置各列之间的一致间距 */
+    margin: 10px 0; /* 列表项的上下间距 */
     padding: 10px;
-    border-bottom: 1px solid #ddd; /* 底部边框 */
+    border-bottom: 1px solid #ddd; /* 列表项的底部边框 */
+    width: 100%;
+    box-sizing: border-box; /* 内边距和边框包含在宽度中 */
 }
 
+/* 列表项中序号的样式 */
+.site-index {
+    text-align: right; /* 序号居中对齐 */
+    color: #545454;
+}
+
+/* 列表项中软件库名称和链接的样式 */
 input[type="text"] {
-    flex: 1; /* 占满可用空间 */
-    margin: 0 10px; /* 间距 */
-    padding: 5px; /* 内边距 */
-    border: 1px solid #ccc; /* 边框 */
-    border-radius: 4px; /* 圆角 */
+    text-align: center; /* 输入框内容居中对齐 */
+    padding: 5px; /* 输入框的内边距 */
+    border: 1px solid #ccc; /* 边框颜色为灰色 */
+    border-radius: 4px; /* 边角圆滑 */
+    width: 100%; /* 输入框占满可用宽度 */
+    box-sizing: border-box; /* 包含内边距和边框在宽度中 */
 }
 
-.edit-btn, delete-single-btn ,.save-btn {
-    margin-left: 10px; /* 按钮左侧间距 */
-    margin-right: 10px; /* 按钮右侧间距 */
-}
-
-/* 增大复选框 */
-.delete-checkbox {
-    width: 15px;
-    height: 15px;
-    margin-right: 10px;
-    margin-left: 10px; /* 增加左侧间距 */
-}
-
-/* 输入框样式调整 */
-.site-name, .site-url {
-    width: 40%;
-    margin-right: 10px;
-}
-
+/* 延迟信息的样式 */
 .latency {
-    margin-left: 10px; /* 左侧间距 */
-    font-size: 0.9em; /* 字体大小 */
-    color: #666; /* 字体颜色 */
+    text-align: center; /* 延迟内容居中 */
+    font-size: 0.9em; /* 较小的字体，用于延迟显示 */
+    color: #666; /* 浅灰色字体 */
+    width: 100%;
+    box-sizing: border-box; /* 内边距和边框包含在宽度中 */
+}
+
+/* 修改、删除按钮的样式（保持默认） */
+.edit-btn,
+.delete-single-btn,
+.save-btn {
+    text-align: center; /* 按钮文本居中 */
+    padding: 5px 10px; /* 按钮的内边距 */
+    cursor: pointer; /* 鼠标变手型 */
+    border-radius: 4px; /* 边角圆滑 */
+    background: none; /* 保持系统默认按钮样式 */
+    border: 1px solid #ccc; /* 边框颜色为灰色 */
+    transition: background-color 0.3s; /* 背景颜色的过渡效果 */
+}
+
+/* 复选框的样式 */
+.delete-checkbox {
+    width: 15px; /* 增大复选框的宽度 */
+    height: 15px; /* 增大复选框的高度 */
+    margin-right: 10px; /* 设置右侧的间距 */
+    margin-left: 10px; /* 设置左侧的间距 */
+    justify-self: center; /* 使复选框在其单元格内居中 */
 }
 
 /* 全选复选框容器样式 */
 .select-all-container {
-    margin-bottom: 10px;
-    padding: 10px 0;
-}
-
-.site-index {
-    margin-right: 10px; /* 给序号和软件库名之间留出空间 */
-    color: #545454; /* 设置默认颜色，可以根据需要更改 */
+    margin-bottom: 10px; /* 容器底部的间距 */
+    padding: 10px 0; /* 上下内边距 */
 }
