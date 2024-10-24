@@ -190,7 +190,6 @@ input[type="text"] {
     font-weight: bold;
     padding: 10px;
     border-bottom: 2px solid #ddd; /* 底部边框用于区分标题和内容 */
-    position: sticky; /* 标题行固定在列表顶部 */
     text-align: center; /* 标题内容居中 */
 }
 
