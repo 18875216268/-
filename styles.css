@@ -58,7 +58,6 @@ h1 {
     background-color: #0056b3;  /* 悬停时改变背景色 */
 }
 
-
 .modal {
     display: none; /* 默认隐藏弹窗 */
     position: fixed;
@@ -133,12 +132,11 @@ input[type="text"] {
     border-radius: 4px; /* 圆角 */
 }
 
-.edit-btn, delete-single-btn ,.save-btn {
+.edit-btn, .delete-single-btn, .save-btn {
     margin-left: 10px; /* 按钮左侧间距 */
     margin-right: 10px; /* 按钮右侧间距 */
 }
 
-/* 增大复选框 */
 .delete-checkbox {
     width: 15px;
     height: 15px;
@@ -146,7 +144,6 @@ input[type="text"] {
     margin-left: 10px; /* 增加左侧间距 */
 }
 
-/* 输入框样式调整 */
 .site-name, .site-url {
     width: 40%;
     margin-right: 10px;
@@ -158,8 +155,16 @@ input[type="text"] {
     color: #666; /* 字体颜色 */
 }
 
-/* 全选复选框容器样式 */
 .select-all-container {
     margin-bottom: 10px;
     padding: 10px 0;
+}
+
+.index {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+#selectAllCheckbox {
+    margin-left: 10px;
 }
