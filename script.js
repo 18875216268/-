@@ -55,22 +55,21 @@ tijiao.addEventListener('click', async () => {
     modal.style.display = 'none'; // 关闭弹窗
 });
 
-// 读取网站列表
+// 从Firebase获取网站列表
 onValue(ref(database, 'sites'), (snapshot) => {
-    siteList.innerHTML = '<li><input type="checkbox" id="selectAllCheckbox" /><label for="selectAllCheckbox">全选</label></li>'; // 重置列表并添加全选复选框
+    siteList.innerHTML = ''; // 清空当前列表
     snapshot.forEach((childSnapshot) => {
         const site = childSnapshot.val();
         const siteId = childSnapshot.key;
 
         const li = document.createElement('li');
         li.innerHTML = `
-            <input type="checkbox" class="delete-checkbox" data-id="${siteId}" />
             <input type="text" class="site-name" value="${site.name}" disabled />
             <input type="text" class="site-url" value="${site.url}" disabled />
-            <span class="status">${site.status || '未知'}</span>
+            <span class="latency">${site.latency || 'N/A'} ms</span> <!-- 只显示数值和单位 -->
             <button class="edit-btn" data-id="${siteId}">修改</button>
             <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
-            <button class="delete-single-btn" data-id="${siteId}">删除</button>
+            <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none; transform: scale(1.5);" />
         `;
         siteList.appendChild(li);
     });
@@ -102,21 +101,12 @@ siteList.addEventListener('click', (event) => {
 });
 
 // 绑定所有按钮的事件
+// 绑定所有按钮的事件
 function attachEventListeners() {
     const editBtns = document.querySelectorAll('.edit-btn');
     const saveBtns = document.querySelectorAll('.save-btn');
-
-    editBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const li = btn.parentElement;
-            li.querySelector('.site-name').removeAttribute('disabled');
-            li.querySelector('.site-url').removeAttribute('disabled');
-            btn.style.display = 'none';
-            const saveBtn = li.querySelector('.save-btn');
-            saveBtn.style.display = 'inline-block';
-            saveBtn.removeAttribute('disabled');
-        });
-    });
+    const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
+    const checkLatencyBtn = document.getElementById('checkLatencyBtn'); // 获取检测延迟按钮
 
     saveBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -176,12 +166,12 @@ deleteBtn.addEventListener('click', () => {
     }
 });
 
-// 检查网站可访问性
-async function checkWebsiteStatus(url) {
-    try {
-        const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
-        return response.ok ? "正常" : "异常";
-    } catch (error) {
-        return "异常";
-    }
-}
+ //检测所有网站延迟
+ checkLatencyBtn.addEventListener('click', async () => {
+        const latencyElements = document.querySelectorAll('.latency'); // 获取所有延迟显示元素
+        for (const element of latencyElements) {
+            const url = element.previousElementSibling.value; // 获取对应的URL
+            const latency = await checkURLLatency(url); // 检测延迟
+            element.textContent = `${latency !== null ? latency + ' ms' : '无法访问'}`; // 更新显示延迟数值和单位
+        }
+    });
