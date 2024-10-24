@@ -43,9 +43,9 @@ tijiao.addEventListener('click', async () => {
         const [name, url] = line.split('|').map(item => item.trim()); // 分割名称和链接
         if (name && url) {
             const newSiteRef = ref(database, 'sites/' + Date.now());
-            
-            const latency = await checkURLLatency(url); // 检查URL延迟
-            const data = { name, url, latency: latency || 'N/A' }; // 保存延迟或'N/A'
+
+            const status = await checkWebsiteStatus(url); // 检查URL可访问性
+            const data = { name, url, status }; // 保存状态
             
             await set(newSiteRef, data); // 写入Firebase数据库
         }
@@ -55,7 +55,7 @@ tijiao.addEventListener('click', async () => {
     modal.style.display = 'none'; // 关闭弹窗
 });
 
-// 在获取网站列表的代码中添加删除按钮
+// 读取网站列表
 onValue(ref(database, 'sites'), (snapshot) => {
     siteList.innerHTML = '<li><input type="checkbox" id="selectAllCheckbox" /><label for="selectAllCheckbox">全选</label></li>'; // 重置列表并添加全选复选框
     snapshot.forEach((childSnapshot) => {
@@ -67,10 +67,10 @@ onValue(ref(database, 'sites'), (snapshot) => {
             <input type="checkbox" class="delete-checkbox" data-id="${siteId}" />
             <input type="text" class="site-name" value="${site.name}" disabled />
             <input type="text" class="site-url" value="${site.url}" disabled />
-            <span class="latency">${site.latency || 'N/A'} ms</span>
+            <span class="status">${site.status || '未知'}</span>
             <button class="edit-btn" data-id="${siteId}">修改</button>
             <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
-            <button class="delete-single-btn" data-id="${siteId}">删除</button> <!-- 单独删除按钮 -->
+            <button class="delete-single-btn" data-id="${siteId}">删除</button>
         `;
         siteList.appendChild(li);
     });
@@ -82,7 +82,7 @@ document.getElementById('siteList').addEventListener('change', (event) => {
     if (event.target.id === 'selectAllCheckbox') {
         const checkboxes = document.querySelectorAll('.delete-checkbox');
         checkboxes.forEach(checkbox => {
-            checkbox.checked = event.target.checked; // 根据全选复选框的状态来勾选或取消勾选
+            checkbox.checked = event.target.checked;
         });
     }
 });
@@ -105,9 +105,6 @@ siteList.addEventListener('click', (event) => {
 function attachEventListeners() {
     const editBtns = document.querySelectorAll('.edit-btn');
     const saveBtns = document.querySelectorAll('.save-btn');
-    const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
-    const checkLatencyBtn = document.getElementById('checkLatencyBtn'); // 获取检测延迟按钮
-
 
     editBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -129,7 +126,7 @@ function attachEventListeners() {
             const url = li.querySelector('.site-url').value;
 
             if (name && url) {
-                set(ref(database, 'sites/' + siteId), { name, url })
+                set(ref(database, 'sites/' + siteId), { name, url, status: li.querySelector('.status').textContent })
                     .then(() => {
                         btn.style.display = 'none';
                         li.querySelector('.edit-btn').style.display = 'inline-block';
@@ -143,16 +140,6 @@ function attachEventListeners() {
                 alert('请填写完整的网站名称和链接。');
             }
         });
-    });
-
-    // 检测软件库延迟
-    checkLatencyBtn.addEventListener('click', async () => {
-        const latencyElements = document.querySelectorAll('.latency'); // 获取所有延迟显示元素
-        for (const element of latencyElements) {
-            const url = element.previousElementSibling.value; // 获取对应的URL
-            const latency = await checkURLLatency(url); // 检测延迟
-            element.textContent = `${latency !== null ? latency + ' ms' : '-1'}`; // 更新显示延迟数值和单位
-        }
     });
 }
 
@@ -189,40 +176,12 @@ deleteBtn.addEventListener('click', () => {
     }
 });
 
-// 检查URL有效性并测量延迟
-async function checkURLLatency(url) {
-    const corsProxy = 'https://cors-anywhere.herokuapp.com/'; // 更新为新的CORS代理地址
-    const apiKey = 'temp_1200b21d21d7f70a5e4d88b86a7517a5'; // 替换为你的API秘钥
-    const startTime = performance.now();
-
-    // 尝试使用CORS代理请求
-    try {
-        const response = await fetch(corsProxy + url, {
-            method: 'HEAD',
-            headers: {
-                'x-cors-api-key': apiKey
-            }
-        });
-        if (!response.ok) {
-            throw new Error('无效链接');
-        }
-        const latency = Math.round(performance.now() - startTime);
-        return latency;
-    } catch (error) {
-        console.error('使用代理检测URL时出错:', error);
-    }
-
-    // 如果使用代理失败，尝试直接请求
+// 检查网站可访问性
+async function checkWebsiteStatus(url) {
     try {
         const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
-        const latency = Math.round(performance.now() - startTime);
-        if (response.ok) {
-            return latency;
-        } else {
-            throw new Error('无效链接');
-        }
+        return response.ok ? "正常" : "异常";
     } catch (error) {
-        console.error('直接检测URL时出错:', error);
-        return null; // 返回null以指示无法访问
+        return "异常";
     }
 }
