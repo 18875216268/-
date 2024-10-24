@@ -158,8 +158,8 @@ input[type="text"] {
     color: #666; /* 字体颜色 */
 }
 
-/* 全选复选框样式 */
-#selectAllRow {
+/* 全选复选框容器样式 */
+.select-all-container {
     margin-bottom: 10px;
-    display: none; /* 初始状态为隐藏，点击删除时才显示 */
+    padding: 10px 0;
 }
