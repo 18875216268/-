@@ -191,7 +191,6 @@ input[type="text"] {
     padding: 10px;
     border-bottom: 2px solid #ddd; /* 底部边框用于区分标题和内容 */
     position: sticky; /* 标题行固定在列表顶部 */
-    z-index: 1; /* 确保标题行在内容之上 */
     text-align: center; /* 标题内容居中 */
 }
 
