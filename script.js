@@ -25,6 +25,7 @@ const inputData = document.getElementById('inputData');
 const tijiao = document.getElementById('tijiao');
 const siteList = document.getElementById('siteList');
 const deleteBtn = document.getElementById('deleteBtn');
+const checkLatencyBtn = document.getElementById('checkLatencyBtn');
 
 // 打开弹窗
 openModalBtn.addEventListener('click', () => {
@@ -44,8 +45,8 @@ tijiao.addEventListener('click', async () => {
         if (name && url) {
             const newSiteRef = ref(database, 'sites/' + Date.now());
             
-            const latency = await checkURLLatency(url); // 检查URL延迟
-            const data = { name, url, latency: latency || 'N/A' }; // 保存延迟或'N/A'
+            const status = await checkURLStatus(url); // 检查URL状态
+            const data = { name, url, status: status || 'N/A' }; // 保存状态或'N/A'
             
             await set(newSiteRef, data); // 写入Firebase数据库
         }
@@ -66,23 +67,22 @@ onValue(ref(database, 'sites'), (snapshot) => {
         li.innerHTML = `
             <input type="text" class="site-name" value="${site.name}" disabled />
             <input type="text" class="site-url" value="${site.url}" disabled />
-            <span class="latency">延迟: ${site.latency || 'N/A'} ms</span> 
+            <span class="latency">${site.status || 'N/A'}</span> 
             <button class="edit-btn" data-id="${siteId}">修改</button>
             <button class="save-btn" data-id="${siteId}" style="display:none;" disabled>保存</button>
-            <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none; transform: scale(1.5);" />
+            <button class="delete-single-btn" data-id="${siteId}">删除</button>
+            <input type="checkbox" class="delete-checkbox" data-id="${siteId}" style="display:none;" />
         `;
         siteList.appendChild(li);
     });
     attachEventListeners(); // 绑定事件
 });
 
-
 // 绑定所有按钮的事件
 function attachEventListeners() {
     const editBtns = document.querySelectorAll('.edit-btn');
     const saveBtns = document.querySelectorAll('.save-btn');
     const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
-    const checkLatencyBtn = document.getElementById('checkLatencyBtn'); // 获取检测延迟按钮
 
     editBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -119,13 +119,21 @@ function attachEventListeners() {
             }
         });
     });
+
     checkLatencyBtn.addEventListener('click', async () => {
-        const latencyElements = document.querySelectorAll('.latency'); // 获取所有延迟显示元素
-        for (const element of latencyElements) {
+        const statusElements = document.querySelectorAll('.latency'); // 获取所有状态显示元素
+        for (const element of statusElements) {
             const url = element.previousElementSibling.value; // 获取对应的URL
-            const latency = await checkURLLatency(url); // 检测延迟
-            element.textContent = `延迟: ${latency !== null ? latency + ' ms' : '无法访问'}`; // 更新显示延迟
+            const status = await checkURLStatus(url); // 检测状态
+            element.textContent = status; // 更新显示为“正常”或“异常”
         }
+    });
+
+    document.querySelectorAll('.delete-single-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const siteId = btn.getAttribute('data-id');
+            deleteSite(siteId); // 调用删除函数
+        });
     });
 }
 
@@ -133,7 +141,7 @@ function attachEventListeners() {
 deleteBtn.addEventListener('click', () => {
     const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
 
-    if (deleteBtn.textContent === "删除软件库") {
+    if (deleteBtn.textContent === "批量删除库") {
         deleteCheckboxes.forEach(checkbox => {
             checkbox.style.display = 'inline-block';
         });
@@ -145,33 +153,44 @@ deleteBtn.addEventListener('click', () => {
 
         if (selectedIds.length > 0) {
             selectedIds.forEach(siteId => {
-                remove(ref(database, 'sites/' + siteId))
-                    .then(() => {
-                        console.log('网站已删除');
-                    })
-                    .catch((error) => {
-                        console.error('删除网站时出错：', error);
-                    });
+                deleteSite(siteId);
             });
         } 
         deleteCheckboxes.forEach(checkbox => {
             checkbox.checked = false;
             checkbox.style.display = 'none';
         });
-        deleteBtn.textContent = "删除软件库"; // 恢复删除按钮文本
+        deleteBtn.textContent = "批量删除库"; // 恢复删除按钮文本
     }
 });
 
-// 检查URL有效性并测量延迟
-async function checkURLLatency(url) {
-    const startTime = performance.now();
+// 从Firebase删除特定的软件库
+function deleteSite(siteId) {
+    remove(ref(database, 'sites/' + siteId))
+        .then(() => {
+            console.log('软件库已删除');
+        })
+        .catch((error) => {
+            console.error('删除时出错:', error);
+        });
+}
+
+// 检查URL是否可访问并返回状态
+async function checkURLStatus(url) {
     try {
         const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
-        const latency = Math.round(performance.now() - startTime);
-        return latency;
+        return response.ok ? '正常' : '异常';
     } catch (error) {
-        console.error('获取URL时出错:', error);
-        return null; // 如果URL无效或无法访问，返回null
+        console.error('无法访问URL:', error);
+        return '异常';
     }
 }
 
+// 绑定全选功能
+const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+selectAllCheckbox.addEventListener('change', () => {
+    const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
+    deleteCheckboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+    });
+});
