@@ -1,0 +1,305 @@
+/* 全局样式 */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+    color: #333;
+}
+
+/* 顶部栏样式 */
+.top-bar {
+    display: flex; /* 使用 Flexbox 布局 */
+    align-items: center; /* 垂直居中 */
+    width: 100%;
+    background-color: #70AD47;
+    position: fixed;
+    z-index: 20;
+    height: 5.5vh;
+    top: 0;
+    padding: 0 20px; /* 给左、右侧添加一定的内边距 */
+    box-sizing: border-box; /* 确保 padding 不会影响宽度 */
+}
+
+.top-bar h1 {
+    flex-grow: 1; /* 让标题占据中间的剩余空间 */
+    margin: 0;
+    font-size: 20px;
+    color: #f3f3f3;
+    text-align: center; /* 标题文本水平居中 */
+}
+
+/* 主页 logo 样式 */
+.top-bar img {
+    height: 20px; /* 设置 logo 高度 */
+    width: 20px; /* 设置 logo 宽度 */
+    object-fit: contain; /* 保持图片比例 */
+    cursor: pointer; /* 鼠标悬停效果 */
+    margin-left: auto; /* 确保 logo 靠右 */
+}
+
+/* 调整顶部下方背景 */
+.beijing-tiaozheng {
+    position: absolute;
+    top: 0; /* 相对于父容器顶部 */
+    left: 0;
+    width: 100%; /* 宽度随父容器变化 */
+    height: 5.6vh; /* 高度随视口高度变化 */
+    background-color: #70ad47;
+    z-index: 10;
+}
+
+/* 数据库资源列表表格样式 */
+.table-container {
+    margin: 5.5vh 0 7vh 0;
+    padding: 0;
+    box-sizing: border-box;
+    height: calc(100vh - 12.5vh);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f0f0f0;
+}
+
+.table-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 10px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+    border: 2px solid #f0f0f0;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    color: #515151;
+    font-size: 12.5px;
+}
+
+th {
+    background-color: #E2F0D9;
+    position: sticky;
+    white-space: nowrap;
+    top: 0;
+    z-index: 10;
+}
+
+/* 表格中特定列的宽度 */
+th:nth-child(1), td:nth-child(1) {
+    width: 60px;
+}
+
+th:nth-child(2), td:nth-child(2) {
+    width: 150px;
+}
+
+th:nth-child(3), td:nth-child(3) {
+    width: 100px;
+}
+
+th:nth-child(4), td:nth-child(4) {
+    width: 25%;
+}
+
+th:nth-child(5), td:nth-child(5) {
+    width: 30%;
+}
+
+th:nth-child(6), td:nth-child(6) {
+    width: 120px;
+}
+
+/* 表格单元格按钮通用样式 */
+td .btn {
+    margin: 2px;
+    padding: 4px 12px;
+    width: 80px;
+    cursor: pointer;
+    white-space: nowrap;
+    text-align: center;
+    border: none;
+    border-radius: 3px;
+    color: white;
+}
+
+.btn {
+    width: 90%; /* 设置按钮宽度 */
+    height: 90%; /* 设置按钮高度 */
+}
+
+.btn-approve {
+    background-color: #28a745;
+}
+
+.btn-approve.unapproved {
+    background-color: #dc3545;
+}
+
+.btn-edit {
+    background-color: #ffc107;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+}
+
+.btn-visit {
+    background-color: #007bff;
+}
+
+/* 表格单元格内容过长时滚动 */
+td {
+    max-width: 200px;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+}
+
+td::-webkit-scrollbar {
+    display: none;
+}
+
+/* 底部导航栏样式 */
+.bottom-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    height: 7vh;
+    background: #70AD47;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    justify-content: center;
+    text-align: center;
+    height: 80%;
+    color: #e6e6e6;
+}
+
+.bottom-bar img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    margin-top: 4px;
+}
+
+.bottom-bar p {
+    margin: 0;
+    font-size: 12px;
+}
+
+/* 弹窗通用样式 */
+.modal, .search-modal {
+    display: none;
+    position: fixed;
+    z-index: 30;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content, .search-modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.modal-content {
+    width: 90%;
+    max-width: 500px;
+}
+
+.search-modal-content {
+    width: 75%;
+    max-width: 600px;
+    display: flex;
+    align-items: center;
+}
+
+/* 弹窗内容样式 */
+.modal-title {
+    text-align: center;
+    margin: 10px 0 20px;
+    font-size: 24px;
+}
+
+.modal-textarea {
+    width: 90%;
+    height: 80px;
+    margin: 0 auto 20px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.modal-buttons, .search-buttons {
+    text-align: center;
+}
+
+.modal-buttons button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 3px;
+    color: white;
+}
+
+.search-buttons {
+    justify-content: space-around; /* 按钮在容器中分散排列 */
+    display: flex; /* 使用 Flexbox 布局 */
+    align-items: center; /* 垂直居中 */
+    width: 25%; /* 占满父容器宽度 */
+}
+
+.search-buttons button {
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    flex: 1; /* 使按钮按内容大小排列 */
+    max-width: 40%; /* 限制按钮最大宽度，避免过长 */
+    color: rgba(255, 255, 255, 1);
+    border: none;
+}
+
+.btn-confirm, .btn-search-confirm {
+    background-color: #28a745;
+    margin-left: 5px;
+}
+
+.btn-cancel, .btn-search-cancel {
+    background-color: #dc3545;
+}
+
+.search-input {
+    width: 75%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}

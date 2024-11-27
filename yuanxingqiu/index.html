@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📙资源·管理台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="houtai.css">
+</head>
+
+<body>
+    <!-- 顶部标题栏 -->
+    <div class="top-bar">
+        <h1>📙资源·管理台</h1>
+        <img src="zhuye.png" alt="主页logo" class="logo-right" onclick="window.location.href='https://www.quruanpu.cn'">
+    </div>
+    <div class="beijing-tiaozheng"></div>
+    <!-- 数据库资源列表 -->
+    <div class="table-container" id="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>日期</th>
+                    <th>标签</th>
+                    <th>名称</th>
+                    <th>网址</th>
+                    <th colspan="4">操作</th>
+                    <th><input type="checkbox" class="checkbox" id="selectAll"></th>
+                </tr>
+            </thead>
+            <tbody id="data-table-body">
+                <!-- 数据条目将在这里填充 -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="bottom-bar">
+        <div class="nav-item" onclick="toggleSelectedApproval()">
+            <img src="shenhe.png" alt="审核">
+            <p>审核</p>
+        </div>
+        <div class="nav-item" onclick="openAddModal()">
+            <img src="tianjia.png" alt="添加">
+            <p>添加</p>
+        </div>
+        <div class="nav-item" onclick="toggleSearchModal()">
+            <img id="search-icon" src="sousuo.png" alt="搜索">
+            <p>搜索</p>
+        </div>
+        <div class="nav-item" onclick="deleteSelectedRecords()">
+            <img src="shanchu.png" alt="删除">
+            <p>删除</p>
+        </div>
+    </div>
+
+    <!-- 添加记录弹窗 -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <h2 class="modal-title">批量添加记录</h2>
+            <textarea id="recordInput" class="modal-textarea"
+                placeholder="请添加新的记录，添加格式为：标签|名称|网址，一行一条记录......"></textarea>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="addRecords()">确认</button>
+                <button class="btn-cancel" onclick="closeAddModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 搜索弹窗 -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" id="searchInput" class="search-input" placeholder="请输入搜索关键字">
+            <div class="search-buttons">
+                <button class="btn-search-confirm" onclick="searchRecords()">确认</button>
+                <button class="btn-search-cancel" onclick="closeSearchModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="houtai.js"></script>
+</body>
+
+</html>
