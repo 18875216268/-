@@ -8,129 +8,365 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-database-compat.js"></script>
     <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #ffffff;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+            --danger-color: #e74c3c;
+            --text-color: #2c3e50;
+            --border-radius: 8px;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-size: 12.5px;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            padding: 20px;
-            max-width: 800px;
-            margin: auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 60px; /* 为底部导航栏预留空间 */
+            width: 100%;
+            height: 100%;
         }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        #directory-list div {
-            background: #fff;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
+
+        .container {
+            position: absolute;
+            margin-top: 60px;
+            margin-bottom: 30px;
+            width: 100%;
+            height: calc(100%-40px);
             align-items: center;
+            justify-content: center;
+            padding: 0px 20px;
         }
-        #directory-list a {
-            color: #007bff;
-            text-decoration: none;
-        }
-        #directory-list a:hover {
-            text-decoration: underline;
-        }
-        #directory-list button {
-            background-color: #ff4d4f;
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-            margin-left: 5px;
-        }
-        #directory-list button.edit {
-            background-color: #ffc107;
-        }
-        #directory-list button.save {
-            background-color: #28a745;
-        }
-        #directory-list button.access {
-            background-color: #007bff;
-        }
-        #directory-list button:hover {
-            opacity: 0.8;
-        }
-        #add-directory {
-            background: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        #add-directory input {
-            width: calc(35% - 10px);
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            color: white;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 10px;
-            margin-right: 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-        #add-directory button {
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #add-directory button:hover {
-            opacity: 0.9;
-        }
-        .notification {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #333;
-            color: #fff;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            z-index: 1000; 
+        }
+
+        .header h1 {
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .directory-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .directory-item {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .directory-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .directory-table th {
+            background-color: #e3e8ee;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+
+        .directory-table td {
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+
+        .directory-table .th-name,
+        .directory-table .td-name {
+            width: 25%;
+            text-align: left;
+        }
+
+        .directory-table .th-path,
+        .directory-table .td-path {
+            width: 45%;
+            text-align: left;
+        }
+
+        .directory-table .th-actions {
+            width: 30%;
+            text-align: center;
+        }
+
+        .directory-table .td-action {
+            width: 10%;
+            text-align: center;
+            padding: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.875rem;
+        }
+
+        .editable-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid transparent;
+            background-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .editable-input[readonly] {
+            cursor: default;
+        }
+
+        .editable-input:not([readonly]) {
+            border-color: var(--primary-color);
+            background-color: white;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+        }
+
+        .td-action {
+            text-align: center;
+            width: 50px;
+            min-width: 50px;
+            position: relative;
+            padding: 0.5rem !important;
+        }
+
+        .td-action .btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .td-action .btn i {
+            font-size: 1rem;
+        }
+
+        .td-action .edit-btn,
+        .td-action .save-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+        }
+
+        .td-action .save-btn {
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.5s, visibility 0.5s;
         }
-        .notification.show {
+
+        tr.editing .td-action .edit-btn {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        tr.editing .td-action .save-btn {
             opacity: 1;
             visibility: visible;
         }
-        input[readonly] {
-            background-color: #e9ecef;
-            border: 1px solid #ccc;
+
+        .directory-actions {
+            padding: 1rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            border-top: 1px solid #dee2e6;
         }
-        input.editable {
-            background-color: #fff;
-            border: 1px solid #007bff;
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition-speed);
+        }
+
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-warning { background-color: var(--warning-color); color: white; }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgb(230, 228, 228);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 1000;
+        }
+
+        .nav-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            transition: var(--transition-speed);
+            margin-top: 5px;
+        }
+
+        .nav-button i {
+            font-size: 12.5px;
+        }
+
+        .nav-button:hover {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .checkbox-wrapper {
+            display: none;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+        }
+
+        .checkbox-wrapper.show {
+            display: block;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            background: #2c3e50;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: translateY(150%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateY(0);
         }
     </style>
 </head>
 <body>
-    <h1>目录管理系统</h1>
-    <div id="add-directory">
-        <input type="text" id="newDirectoryName" placeholder="目录名称">
-        <input type="text" id="newDirectoryPath" placeholder="目录路径">
-        <button onclick="addDirectory()">添加目录</button>
+    <div class="header">
+        <h1>目录管理系统</h1>
     </div>
 
-    <div id="directory-list"></div>
-    <div id="notification" class="notification"></div>
+    <div class="container">
+        <div id="directory-list" class="directory-grid"></div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="#" class="nav-button" onclick="showAddModal()">
+            <i class="fas fa-plus"></i>
+            <span>添加</span>
+        </a>
+        <a href="#" class="nav-button" onclick="toggleDeleteMode()">
+            <i class="fas fa-trash"></i>
+            <span>删除</span>
+        </a>
+    </div>
+
+    <!-- 添加目录的模态窗口 -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>添加新目录</h2>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 1rem;">
+                    <label for="newDirectoryName">目录名称</label>
+                    <input type="text" id="newDirectoryName" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div>
+                    <label for="newDirectoryPath">目录路径</label>
+                    <input type="text" id="newDirectoryPath" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="hideAddModal()">取消</button>
+                <button class="btn btn-primary" onclick="addDirectory()">添加</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Firebase Initialization
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyB-pZD5Mb8pejzBr3ZuHoFkJipzSWLJCpo",
             authDomain: "jizhang-2e89a.firebaseapp.com",
             databaseURL: "https://jizhang-2e89a-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "jizhang-2e89a",
-            storageBucket: "jizhang-2e89a.firebasestorage.app",
+            storageBucket: "jizhang-2e89a.appspot.com",
             messagingSenderId: "849349607897",
             appId: "1:849349607897:web:e0eb3a2222cac60d3b99c8",
             measurementId: "G-SYL25YT9ZC"
@@ -140,107 +376,194 @@
         const database = firebase.database();
         const directoryRef = database.ref('directories');
 
-        // Show notification
-        function showNotification(message) {
+        let isDeleteMode = false;
+
+        function showNotification(message, type = 'info') {
             const notification = document.getElementById('notification');
-            notification.innerText = message;
-            notification.classList.add('show');
+            notification.textContent = message;
+            notification.className = 'notification show';
+            
+            switch(type) {
+                case 'success':
+                    notification.style.backgroundColor = 'var(--success-color)';
+                    break;
+                case 'error':
+                    notification.style.backgroundColor = 'var(--danger-color)';
+                    break;
+                case 'warning':
+                    notification.style.backgroundColor = 'var(--warning-color)';
+                    break;
+            }
+
             setTimeout(() => {
                 notification.classList.remove('show');
             }, 3000);
         }
 
-        // Function to add a new directory
+        function showAddModal() {
+            document.getElementById('addModal').style.display = 'flex';
+        }
+
+        function hideAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+            document.getElementById('newDirectoryName').value = '';
+            document.getElementById('newDirectoryPath').value = '';
+        }
+
         function addDirectory() {
-            const name = document.getElementById('newDirectoryName').value;
-            const path = document.getElementById('newDirectoryPath').value;
-            if (name && path) {
-                const newDirRef = directoryRef.push();
-                newDirRef.set({
-                    name: name,
-                    path: path
-                }).then(() => {
-                    showNotification('目录添加成功！');
-                    document.getElementById('newDirectoryName').value = '';
-                    document.getElementById('newDirectoryPath').value = '';
-                });
-            } else {
-                showNotification('请填写目录名称和路径。');
+            const name = document.getElementById('newDirectoryName').value.trim();
+            const path = document.getElementById('newDirectoryPath').value.trim();
+            
+            if (!name || !path) {
+                showNotification('请填写完整的目录信息', 'warning');
+                return;
+            }
+
+            const newDirRef = directoryRef.push();
+            newDirRef.set({
+                name: name,
+                path: path,
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                showNotification('目录添加成功！', 'success');
+                hideAddModal();
+            }).catch(error => {
+                showNotification('添加失败：' + error.message, 'error');
+            });
+        }
+
+        function toggleDeleteMode() {
+            isDeleteMode = !isDeleteMode;
+            const checkboxWrappers = document.querySelectorAll('.checkbox-wrapper');
+            checkboxWrappers.forEach(wrapper => {
+                wrapper.classList.toggle('show');
+            });
+            
+            if (!isDeleteMode) {
+                const selectedDirs = document.querySelectorAll('input[name="directory-checkbox"]:checked');
+                if (selectedDirs.length > 0) {
+                    if (confirm(`确定要删除选中的 ${selectedDirs.length} 个目录吗？`)) {
+                        selectedDirs.forEach(checkbox => {
+                            deleteDirectory(checkbox.value);
+                        });
+                    }
+                }
             }
         }
 
-        // Function to fetch directories and display them
+        function deleteDirectory(key) {
+            directoryRef.child(key).remove()
+                .then(() => showNotification('目录已删除', 'success'))
+                .catch(error => showNotification('删除失败：' + error.message, 'error'));
+        }
+
         function fetchDirectories() {
             directoryRef.on('value', (snapshot) => {
                 const directories = snapshot.val();
                 const directoryListDiv = document.getElementById('directory-list');
                 directoryListDiv.innerHTML = '';
-                for (let key in directories) {
-                    const directory = directories[key];
-                    directoryListDiv.innerHTML += `
-                        <div>
-                            <span><input type="text" value="${directory.name}" id="name-${key}" readonly> : <input type="text" value="${directory.path}" id="path-${key}" readonly></span>
-                            <div>
-                                <button class="edit" onclick="editDirectory('${key}')">编辑</button>
-                                <button class="save" style="display:none;" onclick="saveDirectory('${key}')">保存</button>
-                                <button class="access" onclick="accessDirectory('${directory.path}')">访问</button>
-                                <button onclick="deleteDirectory('${key}')">删除</button>
-                            </div>
-                        </div>
-                    `;
+                
+                if (!directories) {
+                    directoryListDiv.innerHTML = '<p class="text-center">暂无目录数据</p>';
+                    return;
                 }
+
+                Object.entries(directories).forEach(([key, directory]) => {
+                    const div = document.createElement('div');
+                    div.className = 'directory-item';
+                    div.innerHTML = `
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" name="directory-checkbox" value="${key}">
+                        </div>
+                        <table class="directory-table">
+                            <thead>
+                                <tr>
+                                    <th class="th-name">目录名称</th>
+                                    <th class="th-path">目录地址</th>
+                                    <th class="th-actions" colspan="3">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr data-key="${key}">
+                                    <td class="td-name">
+                                        <input type="text" class="editable-input" id="name-${key}" value="${directory.name}" readonly>
+                                    </td>
+                                    <td class="td-path">
+                                        <input type="text" class="editable-input" id="path-${key}" value="${directory.path}" readonly>
+                                    </td>
+                                    <td class="td-action" width="50">
+                                        <button class="btn btn-warning btn-sm edit-btn" onclick="toggleEdit('${key}')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-success btn-sm save-btn" onclick="saveChanges('${key}')">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </td>
+                                    <td class="td-action" width="50">
+                                        <button class="btn btn-primary btn-sm" onclick="accessDirectory('${directory.path}')">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </button>
+                                    </td>
+                                    <td class="td-action" width="50">
+                                        <button class="btn btn-danger btn-sm" onclick="deleteDirectory('${key}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    `;
+                    directoryListDiv.appendChild(div);
+                });
             });
         }
 
-        // Function to delete a directory
-        function deleteDirectory(key) {
-            directoryRef.child(key).remove().then(() => {
-                showNotification('目录删除成功！');
-            });
-        }
-
-        // Function to edit a directory
-        function editDirectory(key) {
+        function toggleEdit(key) {
+            const row = document.querySelector(`#name-${key}`).closest('tr');
             const nameInput = document.getElementById(`name-${key}`);
             const pathInput = document.getElementById(`path-${key}`);
-            nameInput.removeAttribute('readonly');
-            pathInput.removeAttribute('readonly');
-            nameInput.classList.add('editable');
-            pathInput.classList.add('editable');
-            document.querySelector(`#directory-list div button.edit[onclick="editDirectory('${key}')"]`).style.display = 'none';
-            document.querySelector(`#directory-list div button.save[onclick="saveDirectory('${key}')"]`).style.display = 'inline-block';
-        }
-
-        // Function to save a directory
-        function saveDirectory(key) {
-            const newName = document.getElementById(`name-${key}`).value;
-            const newPath = document.getElementById(`path-${key}`).value;
-            if (newName && newPath) {
-                directoryRef.child(key).set({
-                    name: newName,
-                    path: newPath
-                }).then(() => {
-                    showNotification('目录更新成功！');
-                    const nameInput = document.getElementById(`name-${key}`);
-                    const pathInput = document.getElementById(`path-${key}`);
-                    nameInput.setAttribute('readonly', 'true');
-                    pathInput.setAttribute('readonly', 'true');
-                    nameInput.classList.remove('editable');
-                    pathInput.classList.remove('editable');
-                    document.querySelector(`#directory-list div button.edit[onclick="editDirectory('${key}')"]`).style.display = 'inline-block';
-                    document.querySelector(`#directory-list div button.save[onclick="saveDirectory('${key}')"]`).style.display = 'none';
-                });
-            } else {
-                showNotification('请填写完整的目录名称和路径。');
+            
+            if (nameInput.readOnly) {
+                // 进入编辑模式
+                row.classList.add('editing');
+                nameInput.readOnly = false;
+                pathInput.readOnly = false;
+                nameInput.focus();
             }
         }
 
-        // Function to access a directory
+        function saveChanges(key) {
+            const row = document.querySelector(`#name-${key}`).closest('tr');
+            const nameInput = document.getElementById(`name-${key}`);
+            const pathInput = document.getElementById(`path-${key}`);
+            
+            const newName = nameInput.value.trim();
+            const newPath = pathInput.value.trim();
+
+            if (!newName || !newPath) {
+                showNotification('请填写完整的目录信息', 'warning');
+                return;
+            }
+
+            directoryRef.child(key).update({
+                name: newName,
+                path: newPath,
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                // 退出编辑模式
+                row.classList.remove('editing');
+                nameInput.readOnly = true;
+                pathInput.readOnly = true;
+                showNotification('目录信息已更新', 'success');
+            }).catch(error => {
+                showNotification('更新失败：' + error.message, 'error');
+            });
+        }
+
         function accessDirectory(path) {
             window.open(path, '_blank');
         }
 
-        // Fetch directories when page loads
         window.onload = fetchDirectories;
     </script>
 </body>
