@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>目录管理系统</title>
+    <title>知晓·管理中心</title>
     <!-- Font Awesome 图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Firebase SDK -->
@@ -387,25 +387,25 @@
     <div id="addModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>添加新目录</h2>
+                <h2 style="text-align: center;margin-top: 5px;margin-bottom: 2px;font-size: 16px;">您好！请添加目录。</h2>
             </div>
             <div class="modal-body">
                 <div style="margin-bottom: 1rem;">
-                    <label for="newDirectoryName">目录名称</label>
+                    <label for="newDirectoryName">1.目录名称</label>
                     <input type="text" id="newDirectoryName"
-                        style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"
-                        placeholder="请输入目录名称">
+                        style="width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ddd; border-radius: 4px;"
+                        placeholder="请输入目录名称......">
                 </div>
                 <div>
-                    <label for="newDirectoryPath">目录路径</label>
+                    <label for="newDirectoryPath">2.目录路径</label>
                     <input type="text" id="newDirectoryPath"
-                        style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"
-                        placeholder="请输入目录路径">
+                        style="width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ddd; border-radius: 4px;"
+                        placeholder="请输入目录路径......">
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" style="justify-content: center; gap: 20px;">
                 <button class="btn" onclick="hideAddModal()">取消</button>
-                <button class="btn btn-primary" onclick="addDirectory()">添加</button>
+                <button class="btn btn-primary" onclick="addDirectory()">确认</button>
             </div>
         </div>
     </div>
@@ -419,7 +419,8 @@
     <div id="deleteConfirmModal" class="modal">
         <div class="modal-content" style="width: 250px; padding: 15px;">
             <div class="modal-header" style="text-align: center; margin-bottom: 15px;">
-                <h2 style="font-size: 16px; font-weight: 500; color: #333;font-weight: bolder;margin-bottom: 15px;">您好！管理员。</h2>
+                <h2 style="font-size: 16px; font-weight: 500; color: #333;font-weight: bolder;margin-bottom: 15px;">
+                    您好！管理员。</h2>
             </div>
             <div class="modal-body" style="text-align: center; margin-bottom: 15px;">
                 <p style="font-size: 14px; color: #555;">确定删除当前内容吗？</p>
@@ -572,9 +573,9 @@
                 </td>
                 <td class="td-operation">
         <div class="dropdown">
-            <button class="btn btn-primary btn-sm btn-icon" onclick="toggleDropdown('${key}')">
-                <i class="fas fa-ellipsis-h"></i>
-            </button>
+<button class="btn btn-primary btn-sm btn-icon" onclick="toggleDropdown('${key}')">
+    <i class="fas fa-ellipsis-h" onclick="event.stopPropagation(); toggleDropdown('${key}')"></i>
+</button>
             <div id="dropdown-${key}" class="dropdown-content">
                 <a onclick="accessDirectory('${directory.path}')">
                     <i class="fas fa-external-link-alt"></i> 访问
@@ -743,13 +744,14 @@
         }
 
         // 批量删除
+        // 修改 handleBatchDelete 函数
         function handleBatchDelete() {
             const selectedRows = getSelectedRows();
             if (selectedRows.length === 0) {
                 showNotification('请先选择要删除的项目', 'warning');
                 return;
             }
-            showDeleteConfirmModal(null, selectedRows.length);
+            showBatchDeleteConfirmModal(); // 改用正确的函数
         }
 
         // 确认删除操作
