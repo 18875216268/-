@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>目录管理系统</title>
+    <title>知晓管理系统</title>
+    <!-- Font Awesome 图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-database-compat.js"></script>
     <style>
+        /* 根变量定义 */
         :root {
             --primary-color: #4a90e2;
             --secondary-color: #ffffff;
@@ -17,8 +21,10 @@
             --text-color: #2c3e50;
             --border-radius: 8px;
             --transition-speed: 0.3s;
+            --border-color: #dee2e6;
         }
 
+        /* 基础样式重置 */
         * {
             margin: 0;
             padding: 0;
@@ -31,31 +37,56 @@
             background-color: var(--secondary-color);
             color: var(--text-color);
             line-height: 1.6;
-            padding-bottom: 60px; /* 为底部导航栏预留空间 */
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            /* 添加这行，防止body滚动 */
+            position: fixed;
+            /* 添加这行 */
             width: 100%;
+            /* 添加这行 */
             height: 100%;
+            /* 添加这行 */
         }
 
+        /* 容器样式 */
         .container {
-            position: absolute;
-            margin-top: 60px;
-            margin-bottom: 30px;
-            width: 100%;
-            height: calc(100%-40px);
-            align-items: center;
-            justify-content: center;
-            padding: 0px 20px;
+            position: fixed;
+            top: 50px;
+            /* 头部高度 */
+            left: 0;
+            right: 0;
+            bottom: 60px;
+            /* 底部高度 */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            background-color: var(--secondary-color);
+            padding: 20px;
         }
 
+        /* 添加样式确保表格内容可完全显示 */
+        .directory-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        /* 头部样式 */
         .header {
             background: linear-gradient(135deg, var(--primary-color), #2980b9);
             color: white;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 10px;
             position: fixed;
             width: 100%;
-            z-index: 1000; 
+            top: 0;
+            left: 0;
+            height: 50px;
+            /* 固定高度 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
         }
 
         .header h1 {
@@ -63,11 +94,14 @@
             font-size: 16px;
         }
 
+        /* 目录网格样式 */
         .directory-grid {
             display: grid;
             gap: 1.5rem;
+            overflow: visible;
         }
 
+        /* 目录项样式 */
         .directory-item {
             background: white;
             border-radius: var(--border-radius);
@@ -75,131 +109,42 @@
             overflow: hidden;
         }
 
+        /* 表格样式 */
         .directory-table {
             width: 100%;
             border-collapse: collapse;
             background-color: white;
-            border: 1px solid #dee2e6;
-            border-radius: var(--border-radius);
-            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .directory-table th,
+        .directory-table td {
+            border: 1px solid var(--border-color);
+            text-align: center;
+            vertical-align: middle;
+            padding: 1rem;
+            position: relative;
+            overflow: visible;
         }
 
         .directory-table th {
             background-color: #e3e8ee;
-            padding: 1rem;
-            text-align: center;
             font-weight: 600;
             color: #495057;
-            border: 1px solid #dee2e6;
         }
 
-        .directory-table td {
-            padding: 1rem;
-            border: 1px solid #dee2e6;
-            vertical-align: middle;
-        }
-
+        /* 表格列宽样式 */
         .directory-table .th-name,
         .directory-table .td-name {
-            width: 25%;
-            text-align: left;
+            width: 20%;
         }
 
         .directory-table .th-path,
         .directory-table .td-path {
-            width: 45%;
-            text-align: left;
+            width: 60%;
         }
 
-        .directory-table .th-actions {
-            width: 30%;
-            text-align: center;
-        }
-
-        .directory-table .td-action {
-            width: 10%;
-            text-align: center;
-            padding: 0.5rem;
-        }
-
-        .btn-sm {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.875rem;
-        }
-
-        .editable-input {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid transparent;
-            background-color: transparent;
-            transition: all 0.3s ease;
-        }
-
-        .editable-input[readonly] {
-            cursor: default;
-        }
-
-        .editable-input:not([readonly]) {
-            border-color: var(--primary-color);
-            background-color: white;
-            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
-        }
-
-        .td-action {
-            text-align: center;
-            width: 50px;
-            min-width: 50px;
-            position: relative;
-            padding: 0.5rem !important;
-        }
-
-        .td-action .btn {
-            width: 32px;
-            height: 32px;
-            padding: 0;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-        }
-
-        .td-action .btn i {
-            font-size: 1rem;
-        }
-
-        .td-action .edit-btn,
-        .td-action .save-btn {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.3s ease;
-        }
-
-        .td-action .save-btn {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        tr.editing .td-action .edit-btn {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        tr.editing .td-action .save-btn {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .directory-actions {
-            padding: 1rem;
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.5rem;
-            border-top: 1px solid #dee2e6;
-        }
-
+        /* 按钮样式 */
         .btn {
             padding: 0.5rem 1rem;
             border: none;
@@ -212,21 +157,68 @@
             transition: var(--transition-speed);
         }
 
-        .btn-primary { background-color: var(--primary-color); color: white; }
-        .btn-danger { background-color: var(--danger-color); color: white; }
-        .btn-warning { background-color: var(--warning-color); color: white; }
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.875rem;
+        }
 
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        /* 输入框样式 */
+        .editable-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid transparent;
+            background-color: transparent;
+            transition: all 0.3s ease;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .editable-input[readonly] {
+            cursor: default;
+        }
+
+        .editable-input:not([readonly]) {
+            border-color: var(--primary-color);
+            background-color: white;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+        }
+
+        /* 底部导航栏样式 */
         .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
+            height: 60px;
+            /* 固定高度 */
             background: rgb(230, 228, 228);
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
             padding: 10px;
             display: flex;
             justify-content: space-around;
+            align-items: center;
             z-index: 1000;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
         }
 
         .nav-button {
@@ -249,6 +241,50 @@
             color: var(--primary-color);
         }
 
+        /* 下拉菜单样式 */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 120px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1050;
+            right: 0;
+            border-radius: var(--border-radius);
+            top: 100%;
+            margin-top: 2px;
+        }
+
+        .dropdown-content a {
+            color: var(--text-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            cursor: pointer;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown-content.show {
+            display: block;
+        }
+
+        /* 自定义复选框样式 */
+        .custom-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+
+        /* 模态窗口样式 */
         .modal {
             display: none;
             position: fixed;
@@ -264,7 +300,7 @@
 
         .modal-content {
             background: white;
-            padding: 2rem;
+            padding: 20px;
             border-radius: var(--border-radius);
             width: 90%;
             max-width: 500px;
@@ -272,7 +308,7 @@
         }
 
         .modal-header {
-            margin-bottom: 1.5rem;
+            margin-bottom: 20px;
         }
 
         .modal-body {
@@ -285,18 +321,7 @@
             gap: 1rem;
         }
 
-        .checkbox-wrapper {
-            display: none;
-            padding: 1rem;
-            background-color: #f8f9fa;
-            border-radius: var(--border-radius);
-            margin-bottom: 1rem;
-        }
-
-        .checkbox-wrapper.show {
-            display: block;
-        }
-
+        /* 通知样式 */
         .notification {
             position: fixed;
             bottom: 80px;
@@ -314,23 +339,45 @@
         .notification.show {
             transform: translateY(0);
         }
+
+        /* 按钮图标样式 */
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            justify-content: center;
+        }
+
+        /* 操作列样式 */
+        .directory-table .th-operation,
+        .directory-table .td-operation {
+            width: 20px;
+        }
     </style>
 </head>
+
 <body>
+    <!-- 顶部标题栏 -->
     <div class="header">
         <h1>目录管理系统</h1>
     </div>
 
+    <!-- 主要内容区域 -->
     <div class="container">
         <div id="directory-list" class="directory-grid"></div>
     </div>
 
+    <!-- 底部导航栏 -->
     <div class="bottom-nav">
         <a href="#" class="nav-button" onclick="showAddModal()">
             <i class="fas fa-plus"></i>
             <span>添加</span>
         </a>
-        <a href="#" class="nav-button" onclick="toggleDeleteMode()">
+        <a href="#" class="nav-button" id="editButton" onclick="toggleEditMode()">
+            <i class="fas fa-edit"></i>
+            <span>编辑</span>
+        </a>
+        <a href="#" class="nav-button" onclick="handleBatchDelete()">
             <i class="fas fa-trash"></i>
             <span>删除</span>
         </a>
@@ -345,16 +392,51 @@
             <div class="modal-body">
                 <div style="margin-bottom: 1rem;">
                     <label for="newDirectoryName">目录名称</label>
-                    <input type="text" id="newDirectoryName" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                    <input type="text" id="newDirectoryName"
+                        style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"
+                        placeholder="请输入目录名称">
                 </div>
                 <div>
                     <label for="newDirectoryPath">目录路径</label>
-                    <input type="text" id="newDirectoryPath" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                    <input type="text" id="newDirectoryPath"
+                        style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"
+                        placeholder="请输入目录路径">
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn" onclick="hideAddModal()">取消</button>
                 <button class="btn btn-primary" onclick="addDirectory()">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知提示组件 -->
+    <div id="notification" class="notification" style="display: none;">
+        <span id="notification-message"></span>
+    </div>
+
+    <!-- 删除确认模态窗口 -->
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content" style="width: 250px; padding: 15px;">
+            <div class="modal-header" style="text-align: center; margin-bottom: 15px;">
+                <h2 style="font-size: 16px; font-weight: 500; color: #333;font-weight: bolder;margin-bottom: 15px;">您好！管理员。</h2>
+            </div>
+            <div class="modal-body" style="text-align: center; margin-bottom: 15px;">
+                <p style="font-size: 14px; color: #555;">确定删除当前内容吗？</p>
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: center; gap: 15px;">
+                <button class="btn"
+                    style="padding: 6px 18px; background-color: #f0f0f0; color: #333; border-radius: 4px; font-size: 13px;"
+                    onmouseover="this.style.backgroundColor='#e0e0e0'" onmouseout="this.style.backgroundColor='#f0f0f0'"
+                    onclick="hideDeleteConfirmModal()">
+                    取消
+                </button>
+                <button class="btn"
+                    style="padding: 6px 18px; background-color: #dc3545; color: white; border-radius: 4px; font-size: 12.5px;"
+                    onmouseover="this.style.backgroundColor='#c82333'" onmouseout="this.style.backgroundColor='#dc3545'"
+                    onclick="confirmDelete()">
+                    确认
+                </button>
             </div>
         </div>
     </div>
@@ -372,18 +454,22 @@
             measurementId: "G-SYL25YT9ZC"
         };
 
+        // 初始化Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const directoryRef = database.ref('directories');
 
-        let isDeleteMode = false;
+        // 全局状态变量
+        let isEditMode = false;
 
+        // 通知提示函数
         function showNotification(message, type = 'info') {
-            const notification = document.getElementById('notification');
+            const notification = document.createElement('div');
+            notification.className = 'notification';
             notification.textContent = message;
-            notification.className = 'notification show';
-            
-            switch(type) {
+            document.body.appendChild(notification);
+
+            switch (type) {
                 case 'success':
                     notification.style.backgroundColor = 'var(--success-color)';
                     break;
@@ -395,11 +481,21 @@
                     break;
             }
 
+            // 显示通知
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+
+            // 3秒后移除通知
             setTimeout(() => {
                 notification.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
             }, 3000);
         }
 
+        // 模态窗口操作函数
         function showAddModal() {
             document.getElementById('addModal').style.display = 'flex';
         }
@@ -410,10 +506,11 @@
             document.getElementById('newDirectoryPath').value = '';
         }
 
+        // 添加目录函数
         function addDirectory() {
             const name = document.getElementById('newDirectoryName').value.trim();
             const path = document.getElementById('newDirectoryPath').value.trim();
-            
+
             if (!name || !path) {
                 showNotification('请填写完整的目录信息', 'warning');
                 return;
@@ -432,139 +529,278 @@
             });
         }
 
-        function toggleDeleteMode() {
-            isDeleteMode = !isDeleteMode;
-            const checkboxWrappers = document.querySelectorAll('.checkbox-wrapper');
-            checkboxWrappers.forEach(wrapper => {
-                wrapper.classList.toggle('show');
-            });
-            
-            if (!isDeleteMode) {
-                const selectedDirs = document.querySelectorAll('input[name="directory-checkbox"]:checked');
-                if (selectedDirs.length > 0) {
-                    if (confirm(`确定要删除选中的 ${selectedDirs.length} 个目录吗？`)) {
-                        selectedDirs.forEach(checkbox => {
-                            deleteDirectory(checkbox.value);
-                        });
-                    }
-                }
-            }
-        }
-
-        function deleteDirectory(key) {
-            directoryRef.child(key).remove()
-                .then(() => showNotification('目录已删除', 'success'))
-                .catch(error => showNotification('删除失败：' + error.message, 'error'));
-        }
-
+        // 获取数据并渲染表格
         function fetchDirectories() {
             directoryRef.on('value', (snapshot) => {
                 const directories = snapshot.val();
                 const directoryListDiv = document.getElementById('directory-list');
                 directoryListDiv.innerHTML = '';
-                
+
                 if (!directories) {
                     directoryListDiv.innerHTML = '<p class="text-center">暂无目录数据</p>';
                     return;
                 }
 
+                const table = document.createElement('table');
+                table.className = 'directory-table';
+
+                // 创建表头
+                const thead = document.createElement('thead');
+                thead.innerHTML = `
+    <tr>
+        <th class="th-name">目录名称</th>
+        <th class="th-path">目录地址</th>
+        <th class="th-operation">操作</th>
+        <th style="width: 10%;">
+            <input type="checkbox" class="custom-checkbox" onclick="toggleAllCheckboxes(this)">
+        </th>
+    </tr>
+`;
+                table.appendChild(thead);
+
+                // 创建表体
+                const tbody = document.createElement('tbody');
                 Object.entries(directories).forEach(([key, directory]) => {
-                    const div = document.createElement('div');
-                    div.className = 'directory-item';
-                    div.innerHTML = `
-                        <div class="checkbox-wrapper">
-                            <input type="checkbox" name="directory-checkbox" value="${key}">
-                        </div>
-                        <table class="directory-table">
-                            <thead>
-                                <tr>
-                                    <th class="th-name">目录名称</th>
-                                    <th class="th-path">目录地址</th>
-                                    <th class="th-actions" colspan="3">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr data-key="${key}">
-                                    <td class="td-name">
-                                        <input type="text" class="editable-input" id="name-${key}" value="${directory.name}" readonly>
-                                    </td>
-                                    <td class="td-path">
-                                        <input type="text" class="editable-input" id="path-${key}" value="${directory.path}" readonly>
-                                    </td>
-                                    <td class="td-action" width="50">
-                                        <button class="btn btn-warning btn-sm edit-btn" onclick="toggleEdit('${key}')">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-success btn-sm save-btn" onclick="saveChanges('${key}')">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </td>
-                                    <td class="td-action" width="50">
-                                        <button class="btn btn-primary btn-sm" onclick="accessDirectory('${directory.path}')">
-                                            <i class="fas fa-external-link-alt"></i>
-                                        </button>
-                                    </td>
-                                    <td class="td-action" width="50">
-                                        <button class="btn btn-danger btn-sm" onclick="deleteDirectory('${key}')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    `;
-                    directoryListDiv.appendChild(div);
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-key', key);
+                    tr.innerHTML = `
+                <td class="td-name">
+                    <input type="text" class="editable-input" value="${directory.name}" readonly>
+                </td>
+                <td class="td-path">
+                    <input type="text" class="editable-input" value="${directory.path}" readonly>
+                </td>
+                <td class="td-operation">
+        <div class="dropdown">
+            <button class="btn btn-primary btn-sm btn-icon" onclick="toggleDropdown('${key}')">
+                <i class="fas fa-ellipsis-h"></i>
+            </button>
+            <div id="dropdown-${key}" class="dropdown-content">
+                <a onclick="accessDirectory('${directory.path}')">
+                    <i class="fas fa-external-link-alt"></i> 访问
+                </a>
+                <a onclick="toggleRowEdit('${key}')">
+                    <i class="fas fa-edit"></i> 编辑
+                </a>
+                <a onclick="deleteDirectory('${key}')">
+                    <i class="fas fa-trash"></i> 删除
+                </a>
+            </div>
+        </div>
+    </td>
+                <td>
+                    <input type="checkbox" class="custom-checkbox" value="${key}">
+                </td>
+            `;
+                    tbody.appendChild(tr);
                 });
+                table.appendChild(tbody);
+                directoryListDiv.appendChild(table);
             });
         }
 
-        function toggleEdit(key) {
-            const row = document.querySelector(`#name-${key}`).closest('tr');
-            const nameInput = document.getElementById(`name-${key}`);
-            const pathInput = document.getElementById(`path-${key}`);
-            
-            if (nameInput.readOnly) {
-                // 进入编辑模式
-                row.classList.add('editing');
-                nameInput.readOnly = false;
-                pathInput.readOnly = false;
-                nameInput.focus();
+        // 存储待删除的目录key
+        let pendingDeleteKey = null;
+        let isPendingBatchDelete = false;
+
+        // 显示删除确认模态窗口
+        function showDeleteConfirmModal(key) {
+            pendingDeleteKey = key;
+            isPendingBatchDelete = false;
+            document.getElementById('deleteConfirmModal').style.display = 'flex';
+        }
+
+        // 显示批量删除确认模态窗口
+        function showBatchDeleteConfirmModal() {
+            pendingDeleteKey = null;
+            isPendingBatchDelete = true;
+            document.getElementById('deleteConfirmModal').style.display = 'flex';
+        }
+
+        // 隐藏删除确认模态窗口
+        function hideDeleteConfirmModal() {
+            document.getElementById('deleteConfirmModal').style.display = 'none';
+            pendingDeleteKey = null;
+            isPendingBatchDelete = false;
+        }
+
+        // 下拉菜单操作
+        function toggleDropdown(key) {
+            const dropdowns = document.getElementsByClassName("dropdown-content");
+            Array.from(dropdowns).forEach(dropdown => {
+                if (dropdown.id !== `dropdown-${key}`) {
+                    dropdown.classList.remove('show');
+                }
+            });
+            document.getElementById(`dropdown-${key}`).classList.toggle("show");
+        }
+
+        // 复选框操作
+        function toggleAllCheckboxes(checkbox) {
+            const checkboxes = document.querySelectorAll('.directory-table tbody .custom-checkbox');
+            checkboxes.forEach(box => box.checked = checkbox.checked);
+        }
+
+        // 获取选中的行
+        function getSelectedRows() {
+            const checkedBoxes = document.querySelectorAll('.directory-table tbody .custom-checkbox:checked');
+            return Array.from(checkedBoxes).map(checkbox => checkbox.closest('tr'));
+        }
+
+        // 编辑模式操作
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const editButton = document.getElementById('editButton');
+            const selectedRows = getSelectedRows();
+
+            if (isEditMode) {
+                if (selectedRows.length === 0) {
+                    showNotification('请先选择要编辑的项目', 'warning');
+                    isEditMode = false;
+                    return;
+                }
+                editButton.innerHTML = '<i class="fas fa-save"></i><span>保存</span>';
+                selectedRows.forEach(row => {
+                    const inputs = row.querySelectorAll('.editable-input');
+                    inputs.forEach(input => input.removeAttribute('readonly'));
+                });
+            } else {
+                editButton.innerHTML = '<i class="fas fa-edit"></i><span>编辑</span>';
+                saveAllChanges();
             }
         }
 
-        function saveChanges(key) {
-            const row = document.querySelector(`#name-${key}`).closest('tr');
-            const nameInput = document.getElementById(`name-${key}`);
-            const pathInput = document.getElementById(`path-${key}`);
-            
-            const newName = nameInput.value.trim();
-            const newPath = pathInput.value.trim();
+        // 保存所有更改
+        function saveAllChanges() {
+            const selectedRows = getSelectedRows();
+            const updates = {};
 
-            if (!newName || !newPath) {
-                showNotification('请填写完整的目录信息', 'warning');
-                return;
+            selectedRows.forEach(row => {
+                const key = row.getAttribute('data-key');
+                const inputs = row.querySelectorAll('.editable-input');
+                updates[key] = {
+                    name: inputs[0].value.trim(),
+                    path: inputs[1].value.trim(),
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
+                };
+
+                inputs.forEach(input => input.setAttribute('readonly', true));
+            });
+
+            if (Object.keys(updates).length > 0) {
+                directoryRef.update(updates)
+                    .then(() => showNotification('批量更新成功', 'success'))
+                    .catch(error => showNotification('更新失败：' + error.message, 'error'));
             }
+        }
 
-            directoryRef.child(key).update({
-                name: newName,
-                path: newPath,
+        // 切换单行编辑
+        function toggleRowEdit(key) {
+            const row = document.querySelector(`tr[data-key="${key}"]`);
+            const inputs = row.querySelectorAll('.editable-input');
+            const dropdownButton = row.querySelector('.btn-primary');
+            const dropdown = document.getElementById(`dropdown-${key}`);
+
+            if (inputs[0].readOnly) {
+                inputs.forEach(input => input.removeAttribute('readonly'));
+                dropdownButton.innerHTML = '保存';
+                dropdownButton.onclick = () => saveRowChanges(key);
+                dropdown.classList.remove('show');
+            } else {
+                saveRowChanges(key);
+            }
+        }
+
+        // 保存单行更改
+        function saveRowChanges(key) {
+            const row = document.querySelector(`tr[data-key="${key}"]`);
+            const inputs = row.querySelectorAll('.editable-input');
+            const newData = {
+                name: inputs[0].value.trim(),
+                path: inputs[1].value.trim(),
                 updatedAt: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => {
-                // 退出编辑模式
-                row.classList.remove('editing');
-                nameInput.readOnly = true;
-                pathInput.readOnly = true;
-                showNotification('目录信息已更新', 'success');
-            }).catch(error => {
-                showNotification('更新失败：' + error.message, 'error');
-            });
+            };
+
+            directoryRef.child(key).update(newData)
+                .then(() => {
+                    inputs.forEach(input => input.setAttribute('readonly', true));
+                    const dropdownButton = row.querySelector('.btn-primary');
+                    dropdownButton.innerHTML = '操作';
+                    dropdownButton.onclick = () => toggleDropdown(key);
+                    showNotification('更新成功', 'success');
+                })
+                .catch(error => showNotification('更新失败：' + error.message, 'error'));
         }
 
+        // 访问目录
         function accessDirectory(path) {
             window.open(path, '_blank');
         }
 
+        // 删除目录
+        function deleteDirectory(key) {
+            showDeleteConfirmModal(key);
+        }
+
+        // 批量删除
+        function handleBatchDelete() {
+            const selectedRows = getSelectedRows();
+            if (selectedRows.length === 0) {
+                showNotification('请先选择要删除的项目', 'warning');
+                return;
+            }
+            showDeleteConfirmModal(null, selectedRows.length);
+        }
+
+        // 确认删除操作
+        function confirmDelete() {
+            if (isPendingBatchDelete) {
+                // 执行批量删除
+                const selectedRows = getSelectedRows();
+                const updates = {};
+                selectedRows.forEach(row => {
+                    const key = row.getAttribute('data-key');
+                    updates[key] = null;
+                });
+
+                directoryRef.update(updates)
+                    .then(() => {
+                        showNotification('批量删除成功', 'success');
+                        hideDeleteConfirmModal();
+                    })
+                    .catch(error => {
+                        showNotification('删除失败：' + error.message, 'error');
+                        hideDeleteConfirmModal();
+                    });
+            } else if (pendingDeleteKey) {
+                // 执行单个删除
+                directoryRef.child(pendingDeleteKey).remove()
+                    .then(() => {
+                        showNotification('目录已删除', 'success');
+                        hideDeleteConfirmModal();
+                    })
+                    .catch(error => {
+                        showNotification('删除失败：' + error.message, 'error');
+                        hideDeleteConfirmModal();
+                    });
+            }
+        }
+
+        // 关闭下拉菜单的点击事件监听
+        window.onclick = function (event) {
+            if (!event.target.matches('.btn-primary')) {
+                const dropdowns = document.getElementsByClassName("dropdown-content");
+                Array.from(dropdowns).forEach(dropdown => {
+                    if (dropdown.classList.contains('show')) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            }
+        }
+
+        // 页面加载完成后初始化
         window.onload = fetchDirectories;
     </script>
 </body>
+
 </html>
